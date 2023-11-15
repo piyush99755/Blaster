@@ -2,6 +2,15 @@ Binaries
 DerivedDataCache
 Intermediate
 Saved
+Build
+**/Assets
+**/Characters
+**/LearningKit_Games
+**/LearningKit_Robots
+**/MilitaryWeapSilver
+**/AnimStarterPack
+**/Mixamo
+**/Animations
 .vscode
 .vs
 *.VC.db
