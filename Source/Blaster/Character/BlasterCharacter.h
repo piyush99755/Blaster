@@ -23,6 +23,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UWidgetComponent* OverheadWidget;
+	
+	//special type of Uproperty used to make variable replicable..
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
+		class AWeapon* OverlappingWeapon;
+
+	//rep notify
+	UFUNCTION()
+	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
 
 
 
@@ -30,12 +38,20 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+
+public:
+
+	
+	void SetOverlappingWeapon(AWeapon* Weapon);
 
 	void MoveForward(float Value);
 

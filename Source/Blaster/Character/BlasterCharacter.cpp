@@ -6,6 +6,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Blaster/Weapon/Weapon.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -34,12 +36,26 @@ ABlasterCharacter::ABlasterCharacter()
 
 }
 
+//this function is mainly used to register replicated variables...
+void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//this function is used to relicate variable,which takes class and variable and condition as parameters..
+	//this will replicate variable to owner only, means one who overlapping with weapon
+	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+}
+
+
+
 // Called when the game starts or when spawned
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
+
+
 
 // Called every frame
 void ABlasterCharacter::Tick(float DeltaTime)
@@ -61,6 +77,8 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("Lookup", this, &ABlasterCharacter::Lookup);
 
 }
+
+
 
 void ABlasterCharacter::MoveForward(float Value)
 {
@@ -90,5 +108,42 @@ void ABlasterCharacter::Turn(float Value)
 void ABlasterCharacter::Lookup(float Value)
 {
 	AddControllerPitchInput(Value);
+}
+
+void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+{
+	//rep notifies only replicate variables to client
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+
+	//this will set value to false, when client accessed nullptr
+	if (LastWeapon)
+	{
+		LastWeapon->ShowPickupWidget(false);
+	}
+}
+
+void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
+{
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(false);
+	}
+
+	OverlappingWeapon = Weapon;
+
+	//this will display widget for server as well.
+	//checking if its locally controlled by server 
+	if (IsLocallyControlled())
+	{
+		if (OverlappingWeapon)
+		{
+			OverlappingWeapon->ShowPickupWidget(true);
+		}
+		
+	}
+
 }
 
