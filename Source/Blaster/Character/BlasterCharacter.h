@@ -23,35 +23,47 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UWidgetComponent* OverheadWidget;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UCombatComponent* CombatComponent;
+
+private:
 	//special type of Uproperty used to make variable replicable..
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 		class AWeapon* OverlappingWeapon;
 
 	//rep notify
 	UFUNCTION()
-	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
+	void OnRep_OverlappingWeapon(class AWeapon* LastWeapon);
+
+	//create RPC(Remote Procedure Calls)function in intention to call this in client and executed on server
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed();
 
 
 
 protected:
-	// Called when the game starts or when spawned
+	
 	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void PostInitializeComponents() override;
+
 public:	
-	// Called every frame
+	
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	
 
 
 public:
 
 	
-	void SetOverlappingWeapon(AWeapon* Weapon);
+	void SetOverlappingWeapon(class AWeapon* Weapon);
 
 	void MoveForward(float Value);
 
@@ -60,5 +72,10 @@ public:
 	void Turn(float Value);
 
 	void Lookup(float Value);
+
+	void EquipButtonPressed();
+
+	//function to update bool value in anim instace..
+	bool IsWeaponEquipped();
 
 };

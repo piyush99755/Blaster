@@ -30,4 +30,6 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	//checking if any movement input getting by player..
 	bIsAccelerating = BlasterCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
+
+	bWeaponEquipped = BlasterCharacter->IsWeaponEquipped();
 }

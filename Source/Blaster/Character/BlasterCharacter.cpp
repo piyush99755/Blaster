@@ -8,6 +8,8 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Blaster/Weapon/Weapon.h"
+#include "Blaster/BlasterComponents/CombatComponent.h"
+
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -28,12 +30,32 @@ ABlasterCharacter::ABlasterCharacter()
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(GetRootComponent());
 
+	//constructing combat component..
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	//actor component class does not need to register variable for replication.. they itself are replicated
+	CombatComponent->SetIsReplicated(true);
+
 
 	bUseControllerRotationYaw = false;
 	//character orient towards movement
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 
+}
+
+//allow actor to initilize them before all of its components....
+void ABlasterCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if (CombatComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Combat component is set"));
+		CombatComponent->Character = this;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Combat component is not set"));
+	}
 }
 
 //this function is mainly used to register replicated variables...
@@ -76,7 +98,11 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("Turn", this, &ABlasterCharacter::Turn);
 	PlayerInputComponent->BindAxis("Lookup", this, &ABlasterCharacter::Lookup);
 
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EquipButtonPressed);
+
 }
+
+
 
 
 
@@ -110,6 +136,35 @@ void ABlasterCharacter::Lookup(float Value)
 	AddControllerPitchInput(Value);
 }
 
+void ABlasterCharacter::EquipButtonPressed()
+{
+	
+	if (CombatComponent)
+	{
+		//if equip button pressed by server , simply call equipweapon function 
+		if (HasAuthority())
+		{
+			CombatComponent->EquipWeapon(OverlappingWeapon);
+		}
+		else
+		{
+			//when equip button pressed by client, call RPC function
+			ServerEquipButtonPressed();
+		}
+		
+	}
+}
+
+
+
+void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->EquipWeapon(OverlappingWeapon);
+	}
+}
+
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
 	//rep notifies only replicate variables to client
@@ -124,6 +179,8 @@ void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 		LastWeapon->ShowPickupWidget(false);
 	}
 }
+
+
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
@@ -146,4 +203,11 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	}
 
 }
+
+bool ABlasterCharacter::IsWeaponEquipped()
+{
+	return (CombatComponent && CombatComponent->EquippedWeapon);
+}
+
+
 
