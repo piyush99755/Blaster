@@ -40,4 +40,6 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		bool bIsCrouched;
 	
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		bool bAiming;
 };

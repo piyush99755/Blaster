@@ -35,4 +35,6 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	//initialize value of bIsCrouched with character inherit variable bIsCrouched
 	bIsCrouched = BlasterCharacter->bIsCrouched;
+
+	bAiming = BlasterCharacter->IsAiming();
 }

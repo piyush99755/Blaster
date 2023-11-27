@@ -80,6 +80,12 @@ public:
 
 	void CrouchButtonPressed();
 
+	void AimButtonPressed();
+
+	void AimButtonReleased();
+
+	bool IsAiming();
+
 	
 
 };

@@ -31,6 +31,11 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+	void SetAiming(bool bIsAiming);
+	//server RPC function for client side 
+    UFUNCTION(Server, Reliable)
+	void ServerSetAiming(bool bIsAiming);
+
 private:
 
 	
@@ -39,6 +44,9 @@ private:
 	//make it Replicated to replicate EquippedWeapon variable
 	UPROPERTY(Replicated)
 	class AWeapon* EquippedWeapon;
+
+	UPROPERTY(Replicated)
+	bool bAiming;
 
 	
 	
