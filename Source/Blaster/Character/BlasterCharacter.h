@@ -78,4 +78,8 @@ public:
 	//function to update bool value in anim instace..
 	bool IsWeaponEquipped();
 
+	void CrouchButtonPressed();
+
+	
+
 };

@@ -39,6 +39,9 @@ ABlasterCharacter::ABlasterCharacter()
 	bUseControllerRotationYaw = false;
 	//character orient towards movement
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	
+	//setting value to true by default
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 
 
 }
@@ -99,6 +102,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("Lookup", this, &ABlasterCharacter::Lookup);
 
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EquipButtonPressed);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed);
 
 }
 
@@ -207,6 +211,21 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 bool ABlasterCharacter::IsWeaponEquipped()
 {
 	return (CombatComponent && CombatComponent->EquippedWeapon);
+}
+
+void ABlasterCharacter::CrouchButtonPressed()
+{
+	if (bIsCrouched)
+	{
+		//it is inherited function from Character class
+		UnCrouch();
+	}
+	else
+	{
+		Crouch();
+	}
+
+	
 }
 
 
