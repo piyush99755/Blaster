@@ -4,6 +4,7 @@
 #include "BlasterAnimInstance.h"
 #include "BlasterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UBlasterAnimInstance::NativeInitializeAnimation()
 {
@@ -37,4 +38,35 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsCrouched = BlasterCharacter->bIsCrouched;
 
 	bAiming = BlasterCharacter->IsAiming();
+
+	FRotator AimRotation = BlasterCharacter->GetBaseAimRotation();
+	UE_LOG(LogTemp, Warning, TEXT("Aim Rotation: %f"), AimRotation.Yaw);
+
+	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(BlasterCharacter->GetVelocity());
+	UE_LOG(LogTemp, Warning, TEXT("Movement Rotation: %f"), MovementRotation.Yaw);
+
+	//getting delta between two rotator which gives value of yaw ofset, which can be used for strafing 
+	FRotator DeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation);
+
+	DeltaRotation = FMath::RInterpTo(DeltaRotation, DeltaRot, DeltaTime, 6.f);
+
+	YawOffset = DeltaRotation.Yaw;
+
+	
+
+	//functionality for lean
+	//getting value difference between character current rotation and character rotation on last frame..
+	CharacterRotationLastFrame = CharacterRotation;
+
+	CharacterRotation = BlasterCharacter->GetActorRotation();
+
+	const FRotator Delta = UKismetMathLibrary::NormalizedDeltaRotator(CharacterRotation, CharacterRotationLastFrame);
+
+	const float Target = Delta.Yaw / DeltaTime;
+
+	//smooth interpolation for leaning 
+	const float Interp = FMath::FInterpTo(Lean, Target, DeltaTime, 6.f);
+
+	Lean = FMath::Clamp(Interp, -90.f, 90.f);
+
 }
