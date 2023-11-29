@@ -9,6 +9,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Blaster/Weapon/Weapon.h"
 #include "Blaster/BlasterComponents/CombatComponent.h"
+#include "Components/CapsuleComponent.h"
 
 
 // Sets default values
@@ -42,6 +43,10 @@ ABlasterCharacter::ABlasterCharacter()
 	
 	//setting value to true by default
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+
+	//prevent character from blocking camera ...
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
 
 }
