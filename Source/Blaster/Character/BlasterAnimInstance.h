@@ -43,6 +43,7 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		bool bAiming;
 
+	//variables to implement strafing and leaning
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		float YawOffset;
 
@@ -54,4 +55,11 @@ private:
 	FRotator CharacterRotation;
 
 	FRotator DeltaRotation;
+
+	//variables to implement Aim offset
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		float AO_Yaw;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		float AO_Pitch;
 };
