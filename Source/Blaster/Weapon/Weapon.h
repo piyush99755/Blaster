@@ -67,6 +67,7 @@ public:
 	void ShowPickupWidget(bool bShowWidget);
 
 	FORCEINLINE USphereComponent* GetWeaponSphere() const { return WeaponSphere; }
+	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 
 	
 	void SetWeaponStatus(EWeaponState State);

@@ -5,6 +5,7 @@
 #include "BlasterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Blaster/Weapon/Weapon.h"
 
 void UBlasterAnimInstance::NativeInitializeAnimation()
 {
@@ -34,16 +35,18 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	bWeaponEquipped = BlasterCharacter->IsWeaponEquipped();
 
+	EquippedWeapon = BlasterCharacter->GetEquippedWeapon();
+
 	//initialize value of bIsCrouched with character inherit variable bIsCrouched
 	bIsCrouched = BlasterCharacter->bIsCrouched;
 
 	bAiming = BlasterCharacter->IsAiming();
 
 	FRotator AimRotation = BlasterCharacter->GetBaseAimRotation();
-	UE_LOG(LogTemp, Warning, TEXT("Aim Rotation: %f"), AimRotation.Yaw);
+	
 
 	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(BlasterCharacter->GetVelocity());
-	UE_LOG(LogTemp, Warning, TEXT("Movement Rotation: %f"), MovementRotation.Yaw);
+	
 
 	//getting delta between two rotator which gives value of yaw ofset, which can be used for strafing 
 	FRotator DeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation);
@@ -69,8 +72,26 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	Lean = FMath::Clamp(Interp, -90.f, 90.f);
 
+	//getting Yaw and pitch value from blaster character class..
 	AO_Yaw = BlasterCharacter->GetAO_Yaw();
 
 	AO_Pitch = BlasterCharacter->GetAO_Pitch();
+
+	//
+	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && BlasterCharacter->GetMesh())
+	{
+		//left hand transfrom to the LeftHandSocket created on weapon mesh
+		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);
+
+		//Outposition and out rotation will have valid data after passing TransformToBoneSpace function 
+		//they will be used in setting up left hand transform location androtation value..
+		FVector OutPosition;
+		FRotator OutRotation;
+		BlasterCharacter->GetMesh()->TransformToBoneSpace(FName("Hand_R"), LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
+
+		//setting up left hand transform location and rotation , based on data received by TransformToBoneSpace function 
+		LeftHandTransform.SetLocation(OutPosition);
+		LeftHandTransform.SetRotation(FQuat(OutRotation));
+	}
 
 }
