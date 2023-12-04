@@ -49,7 +49,8 @@ ABlasterCharacter::ABlasterCharacter()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
-
+	//initial state of TurningInPlace
+	TurningInPlace = ETurningInPlace::ETIP_NoTurning;
 }
 
 //allow actor to initilize them before all of its components....
@@ -113,7 +114,14 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation );
 		AO_Yaw = DeltaAimRotation.Yaw;
-		bUseControllerRotationYaw = false;
+
+		if (TurningInPlace == ETurningInPlace::ETIP_NoTurning)
+		{
+			 InterpAO_Yaw  = AO_Yaw;
+		}
+
+		bUseControllerRotationYaw = true;
+		TurnInPlace(DeltaTime);
 	}
 
 	if (Speed > 0.f || bIsInAir)//running or jumping
@@ -121,6 +129,7 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
+		TurningInPlace = ETurningInPlace::ETIP_NoTurning;//not turning if speedin >0.f or character is jumping..
 	}
 
 	AO_Pitch = GetBaseAimRotation().Pitch;
@@ -130,6 +139,33 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		FVector2D InRange(270.f, 360.f);
 		FVector2D OutRange(-90.f, 0);
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
+}
+
+void ABlasterCharacter::TurnInPlace(float DeltaTime)
+{
+	if (AO_Yaw > 90.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Right;
+	}	
+
+	else if (AO_Yaw < -90.F)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Left;
+	}
+	//for smooth turning in place interpolation...
+	if (TurningInPlace != ETurningInPlace::ETIP_NoTurning)
+	{
+		InterpAO_Yaw = FMath::FInterpTo(InterpAO_Yaw, 0.f, DeltaTime, 5.f);
+		AO_Yaw = InterpAO_Yaw;
+
+		//prevent over turning
+		if (FMath::Abs(AO_Yaw) < 15.f)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_NoTurning;
+			StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);//resetting starting aim rotation
+		}
+
 	}
 }
 

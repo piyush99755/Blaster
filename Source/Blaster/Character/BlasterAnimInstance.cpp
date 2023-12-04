@@ -54,6 +54,9 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	DeltaRotation = FMath::RInterpTo(DeltaRotation, DeltaRot, DeltaTime, 6.f);
 
 	YawOffset = DeltaRotation.Yaw;
+	
+	//turning in place
+	TurningInPlace = BlasterCharacter->GetTurningInPlace();
 
 	
 
