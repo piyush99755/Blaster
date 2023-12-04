@@ -63,6 +63,8 @@ protected:
 
 	virtual void PostInitializeComponents() override;
 
+	virtual void Jump() override;
+
 public:	
 	
 	virtual void Tick(float DeltaTime) override;

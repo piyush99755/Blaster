@@ -48,9 +48,15 @@ ABlasterCharacter::ABlasterCharacter()
 	//prevent character from blocking camera ...
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
 
 	//initial state of TurningInPlace
 	TurningInPlace = ETurningInPlace::ETIP_NoTurning;
+	
+
+	//net frequency variables for fast-paced shooter game...
+	NetUpdateFrequency = 66.f;
+	MinNetUpdateFrequency = 33.f;
 }
 
 //allow actor to initilize them before all of its components....
@@ -67,6 +73,9 @@ void ABlasterCharacter::PostInitializeComponents()
 		UE_LOG(LogTemp, Warning, TEXT("Combat component is not set"));
 	}
 }
+
+
+
 
 //this function is mainly used to register replicated variables...
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -174,7 +183,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlasterCharacter::Jump);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABlasterCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABlasterCharacter::MoveRight);
@@ -339,6 +348,20 @@ AWeapon* ABlasterCharacter::GetEquippedWeapon()
 	if(CombatComponent == nullptr) return nullptr;
 
 	return CombatComponent->EquippedWeapon;
+}
+
+//overriding jump base function to correct crouching behavior
+void ABlasterCharacter::Jump()
+{
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+
+	else
+	{
+		Super::Jump();
+	}
 }
 
 
