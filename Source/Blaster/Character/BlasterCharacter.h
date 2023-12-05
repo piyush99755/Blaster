@@ -28,6 +28,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UCombatComponent* CombatComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UAnimMontage* WeaponFireMontage;
+
 private:
 	//special type of Uproperty used to make variable replicable..
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
@@ -65,6 +68,10 @@ protected:
 
 	virtual void Jump() override;
 
+	void FireButtonPressed();
+
+	void FireButtonReleased();
+
 public:	
 	
 	virtual void Tick(float DeltaTime) override;
@@ -72,6 +79,8 @@ public:
 	void AimOffset(float DeltaTime);
 
 	void TurnInPlace(float DeltaTime);
+
+	void PlayFireWeaponMontage(bool bAiming);
 	
 	
 
@@ -99,6 +108,8 @@ public:
 	void AimButtonPressed();
 
 	void AimButtonReleased();
+
+	
 
 	bool IsAiming();
 

@@ -11,6 +11,8 @@
 #include "Blaster/BlasterComponents/CombatComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "BlasterAnimInstance.h"
+#include "Animation/AnimMontage.h"
 
 
 // Sets default values
@@ -178,6 +180,8 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 	}
 }
 
+
+
 // Called to bind functionality to input
 void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -195,6 +199,9 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABlasterCharacter::FireButtonPressed);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABlasterCharacter::FireButtonReleased);
 	
 
 }
@@ -338,6 +345,24 @@ void ABlasterCharacter::AimButtonReleased()
 }
 
 
+
+void ABlasterCharacter::FireButtonPressed()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->FireButtonPressed(true);
+	}
+}
+
+void ABlasterCharacter::FireButtonReleased()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->FireButtonPressed(false);
+	}
+}
+
+
 bool ABlasterCharacter::IsAiming()
 {
 	return (CombatComponent && CombatComponent->bAiming);
@@ -361,6 +386,21 @@ void ABlasterCharacter::Jump()
 	else
 	{
 		Super::Jump();
+	}
+}
+
+void ABlasterCharacter::PlayFireWeaponMontage(bool bAiming)
+{
+	if (CombatComponent == nullptr || CombatComponent->EquippedWeapon == nullptr) return;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && WeaponFireMontage)
+	{
+		
+		AnimInstance->Montage_Play(WeaponFireMontage);
+		FName SectionName;
+		SectionName = bAiming ? FName("AimRifle") : FName("HipRifle");//getting section name to play appropriate montage
+		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
 
