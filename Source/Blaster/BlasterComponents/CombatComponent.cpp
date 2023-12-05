@@ -8,13 +8,15 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
 {
 	
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
 	BaseWalkSpeed = 600.f;
 	AimWalkSpeed = 250.f;
@@ -79,7 +81,9 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	FHitResult TraceHitResults;
+
+	TraceUnderCrosshairs(TraceHitResults);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -129,6 +133,51 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 	}
 
 	
+}
+
+void UCombatComponent::TraceUnderCrosshairs(FHitResult& HitResult)
+{
+	//get the viewport size
+	FVector2D ViewportSize;
+
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	//gettinng cross hair location by dividing viewport zise x and y vector by 2.f..
+	FVector2D CrosshairLocation = FVector2D(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+
+	FVector CrosshairWorldPosition;
+	FVector CrosshairWorldDirection;
+
+	//project screen to world location
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrosshairLocation, CrosshairWorldPosition, CrosshairWorldDirection);
+
+	if (bScreenToWorld)
+	{
+		//variables for line trace single by channel
+		FVector Start = CrosshairWorldPosition;
+		FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
+
+		GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility);
+
+		//when line trace doesnot hit anything
+		if (!HitResult.bBlockingHit)
+		{
+			HitResult.ImpactPoint = End;
+		}
+
+		else
+		{
+			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 12.f, 12, FColor::Red, false);
+		}
+	};
+
+	
+
+	
+
 }
 
 void UCombatComponent::ServerFire_Implementation()

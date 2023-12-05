@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+#define TRACE_LENGTH 80000.f;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BLASTER_API UCombatComponent : public UActorComponent
@@ -50,6 +51,8 @@ protected:
    //multicast RPC function to handle fire functionality on both server and client
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastFire();
+
+	void TraceUnderCrosshairs(FHitResult& HitResult);
 
 private:
 
