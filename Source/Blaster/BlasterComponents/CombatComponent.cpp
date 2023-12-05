@@ -121,9 +121,34 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
 
-	if (Character && bFireButtonPressed)
+	if (bFireButtonPressed)
+	{
+		//as FireButtonPressed function called locally on server or client
+		//need to call server RPC first and it will call multicast RPC 
+		ServerFire();
+	}
+
+	
+}
+
+void UCombatComponent::ServerFire_Implementation()
+{
+	MulticastFire();
+}
+
+void UCombatComponent::MulticastFire_Implementation()
+{
+	if (EquippedWeapon == nullptr) return;
+	if (Character)
 	{
 		Character->PlayFireWeaponMontage(bAiming);
+
+		//call fire function from weapon class to play fire animation
+		EquippedWeapon->Fire();
 	}
 }
+
+
+
+
 

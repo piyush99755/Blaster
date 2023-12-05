@@ -58,6 +58,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		class UWidgetComponent* PickupWidget;
 
+	//variable for animation asset 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UAnimationAsset* FireAnimation;
+
+
+
 
 public:
 
@@ -71,6 +77,8 @@ public:
 
 	
 	void SetWeaponStatus(EWeaponState State);
+
+	void Fire();
 
 
 

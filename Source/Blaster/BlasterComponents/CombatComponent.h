@@ -43,6 +43,14 @@ protected:
 
 	void FireButtonPressed(bool bPressed);
 
+	//server RPC function to handle fire functionality on server
+	UFUNCTION(Server, Reliable)
+	void ServerFire();
+
+   //multicast RPC function to handle fire functionality on both server and client
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastFire();
+
 private:
 
 	

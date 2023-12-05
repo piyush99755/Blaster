@@ -7,7 +7,7 @@
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Weapon/Weapon.h"
 #include "Net/UnrealNetwork.h"
-#include "Components/SphereComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 AWeapon::AWeapon()
 {
@@ -129,6 +129,14 @@ void AWeapon::SetWeaponStatus(EWeaponState State)
 		break;
 	}
 
+}
+
+void AWeapon::Fire()
+{
+	if (FireAnimation)
+	{
+		WeaponMesh->PlayAnimation(FireAnimation, false);
+	}
 }
 
 
