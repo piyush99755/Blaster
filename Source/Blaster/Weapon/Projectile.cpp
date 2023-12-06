@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "particles/ParticleSystem.h"
 #include "particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
 
 AProjectile::AProjectile()
 {
@@ -43,13 +44,49 @@ void AProjectile::BeginPlay()
 	{
 		TracerComponent = UGameplayStatics::SpawnEmitterAttached(Tracer, CollisionBox, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition);
 	}
+
+
+	//Only handles on server....
+	if (HasAuthority())
+	{
+		//bind call back to component hit event...
+		CollisionBox->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+	}
+	
 	
 }
+
+
 
 
 void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+}
+
+void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+
+	Destroy();
+}
+
+//this is an override function, which is being called when actor is explicitly being destroy during gameplay..
+//thus, spawning particels and play sound will be  propogated to server and all clients as well
+void AProjectile::Destroyed()
+{
+	Super::Destroyed();
+
+
+	if (ImpactParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, GetActorTransform());
+	}
+
+	if (ImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
+	}
 
 }
 

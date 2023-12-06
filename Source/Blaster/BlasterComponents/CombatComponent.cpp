@@ -163,8 +163,17 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& HitResult)
 
 		GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility);
 
+		if (!HitResult.bBlockingHit)
+		{
+			HitResult.ImpactPoint = End;
+			
+		}
 		
 	};
+
+	
+
+	
 
 	
 
