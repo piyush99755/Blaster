@@ -78,7 +78,7 @@ public:
 	
 	void SetWeaponStatus(EWeaponState State);
 
-	void Fire();
+	virtual void Fire(const FVector& HitTarget);
 
 
 

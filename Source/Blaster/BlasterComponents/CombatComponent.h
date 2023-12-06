@@ -75,6 +75,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	bool bFireButtonPressed;
 
+	FVector HitTarget;
+
 	
 	
 	

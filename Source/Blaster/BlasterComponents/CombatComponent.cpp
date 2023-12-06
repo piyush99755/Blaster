@@ -166,10 +166,14 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& HitResult)
 		if (!HitResult.bBlockingHit)
 		{
 			HitResult.ImpactPoint = End;
+			HitTarget = End; 
 		}
 
 		else
 		{
+			//storing hit target to hit result' impact point...
+			HitTarget = HitResult.ImpactPoint;
+
 			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 12.f, 12, FColor::Red, false);
 		}
 	};
@@ -192,8 +196,8 @@ void UCombatComponent::MulticastFire_Implementation()
 	{
 		Character->PlayFireWeaponMontage(bAiming);
 
-		//call fire function from weapon class to play fire animation
-		EquippedWeapon->Fire();
+		//call fire function from weapon class, which has spawn projectile functionality.. 
+		EquippedWeapon->Fire(HitTarget);
 	}
 }
 
