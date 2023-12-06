@@ -46,11 +46,11 @@ protected:
 
 	//server RPC function to handle fire functionality on server
 	UFUNCTION(Server, Reliable)
-	void ServerFire();
+	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 
    //multicast RPC function to handle fire functionality on both server and client
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastFire();
+		void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
 
 	void TraceUnderCrosshairs(FHitResult& HitResult);
 
@@ -75,7 +75,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	bool bFireButtonPressed;
 
-	FVector HitTarget;
+	
 
 	
 	

@@ -81,9 +81,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FHitResult TraceHitResults;
-
-	TraceUnderCrosshairs(TraceHitResults);
+	
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -127,9 +125,12 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 
 	if (bFireButtonPressed)
 	{
+		FHitResult TraceHitResults;
+
+		TraceUnderCrosshairs(TraceHitResults);
 		//as FireButtonPressed function called locally on server or client
 		//need to call server RPC first and it will call multicast RPC 
-		ServerFire();
+		ServerFire(TraceHitResults.ImpactPoint);
 	}
 
 	
@@ -162,20 +163,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& HitResult)
 
 		GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility);
 
-		//when line trace doesnot hit anything
-		if (!HitResult.bBlockingHit)
-		{
-			HitResult.ImpactPoint = End;
-			HitTarget = End; 
-		}
-
-		else
-		{
-			//storing hit target to hit result' impact point...
-			HitTarget = HitResult.ImpactPoint;
-
-			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 12.f, 12, FColor::Red, false);
-		}
+		
 	};
 
 	
@@ -184,12 +172,15 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& HitResult)
 
 }
 
-void UCombatComponent::ServerFire_Implementation()
+//server fire  function only replicates on server ..
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	MulticastFire();
+	MulticastFire(TraceHitTarget);
 }
 
-void UCombatComponent::MulticastFire_Implementation()
+
+//multicast fire function replicates both on server and client..
+void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (EquippedWeapon == nullptr) return;
 	if (Character)
@@ -197,7 +188,7 @@ void UCombatComponent::MulticastFire_Implementation()
 		Character->PlayFireWeaponMontage(bAiming);
 
 		//call fire function from weapon class, which has spawn projectile functionality.. 
-		EquippedWeapon->Fire(HitTarget);
+		EquippedWeapon->Fire(TraceHitTarget);
 	}
 }
 
