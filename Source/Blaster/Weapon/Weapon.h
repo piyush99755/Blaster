@@ -62,6 +62,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UAnimationAsset* FireAnimation;
 
+	//for weapons to choose different type of casing class 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class ACasing> CasingClass;
+
 
 
 
