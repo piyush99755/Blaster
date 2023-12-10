@@ -54,10 +54,16 @@ protected:
 
 	void TraceUnderCrosshairs(FHitResult& HitResult);
 
+	void SetHUDCrosshairs(float DeltaTime);
+
 private:
 
 	
 	class ABlasterCharacter* Character;
+
+	class ABlasterPlayerController* Controller;
+
+	class ABlasterHUD* HUD;
 
 	//make it Replicated to replicate EquippedWeapon variable
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)

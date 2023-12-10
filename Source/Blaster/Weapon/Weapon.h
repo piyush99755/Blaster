@@ -26,6 +26,22 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	//texture variables for weapon crosshairs
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UTexture2D* CrosshairsCenter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UTexture2D* CrosshairsLeft;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UTexture2D* CrosshairsRight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UTexture2D* CrosshairsTop;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UTexture2D* CrosshairsBottom;
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -65,6 +81,8 @@ private:
 	//for weapons to choose different type of casing class 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class ACasing> CasingClass;
+
+	
 
 
 
