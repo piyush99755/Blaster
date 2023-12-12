@@ -95,6 +95,20 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 		//setting up left hand transform location and rotation , based on data received by TransformToBoneSpace function 
 		LeftHandTransform.SetLocation(OutPosition);
 		LeftHandTransform.SetRotation(FQuat(OutRotation));
+
+		if (BlasterCharacter->IsLocallyControlled())
+		{
+			bLocallyControlled = true;
+			//rotate Hand_R bone towards hit target location ...
+			FTransform RightHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("Hand_R"), ERelativeTransformSpace::RTS_World);
+			FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTransform.GetLocation(), RightHandTransform.GetLocation() + (RightHandTransform.GetLocation()) - (BlasterCharacter->GetHitTarget()));
+
+			//Smooth interpolation of bone
+			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaTime, 30.f);
+		}
+		
+
+		
 	}
 
 }

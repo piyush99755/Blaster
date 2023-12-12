@@ -42,6 +42,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UTexture2D* CrosshairsBottom;
 
+	
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -82,6 +84,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class ACasing> CasingClass;
 
+	//zoom in variables for different type of weapons, declaring in base class , which will be available for all child classes
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,  meta = (AllowPrivateAccess = "true"))
+		float ZoomedFOV = 30.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		float ZoomInterpSpeed = 20.f;
+
 	
 
 
@@ -96,6 +106,8 @@ public:
 
 	FORCEINLINE USphereComponent* GetWeaponSphere() const { return WeaponSphere; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
+	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
+	FORCEINLINE float GetZoomInterpSpeed() const  { return ZoomInterpSpeed; }
 
 	
 	void SetWeaponStatus(EWeaponState State);

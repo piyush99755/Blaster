@@ -50,6 +50,7 @@ ABlasterCharacter::ABlasterCharacter()
 	//prevent character from blocking camera ...
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
 
 	//initial state of TurningInPlace
@@ -373,6 +374,13 @@ AWeapon* ABlasterCharacter::GetEquippedWeapon()
 	if(CombatComponent == nullptr) return nullptr;
 
 	return CombatComponent->EquippedWeapon;
+}
+
+FVector ABlasterCharacter::GetHitTarget() const
+{
+	if (CombatComponent == nullptr) return FVector();
+
+	return CombatComponent->HitTarget;
 }
 
 //overriding jump base function to correct crouching behavior

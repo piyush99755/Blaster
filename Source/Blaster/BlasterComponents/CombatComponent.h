@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Blaster/HUD/BlasterHUD.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 80000.f;
@@ -24,6 +25,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void EquipWeapon(class AWeapon* WeaponToEquip);
+
+	void InterpFOV(float DeltaTime);
 
 	
 
@@ -81,6 +84,27 @@ private:
 	UPROPERTY(EditAnywhere)
 	bool bFireButtonPressed;
 
+	float DefaultFOV; 
+
+	float CurrentFOV;
+	
+	UPROPERTY(EditAnywhere)
+		float ZoomFOV = 30.f;
+
+	UPROPERTY(EditAnywhere)
+		float ZoomInterpSpeed = 20.f;
+	
+	float CrosshairVelocityFactor;
+
+	float CrosshairInAirFactor; 
+
+	float CrosshairAimFactor;
+
+	float CrosshairShootingFactor; 
+
+	FVector HitTarget;
+
+	FHUDPackage HUDPackage;
 	
 
 	
