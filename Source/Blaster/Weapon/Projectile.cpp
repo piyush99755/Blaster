@@ -8,6 +8,8 @@
 #include "particles/ParticleSystem.h"
 #include "particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
+#include "Blaster/Character/BlasterCharacter.h"
+#include "Blaster/Blaster.h"
 
 AProjectile::AProjectile()
 {
@@ -24,7 +26,7 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
-	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECollisionResponse::ECR_Block);
 
 	//constructing projectile movement component...
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
@@ -67,6 +69,17 @@ void AProjectile::Tick(float DeltaTime)
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (OtherActor)
+	{
+		ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(OtherActor);
+
+		if (BlasterCharacter)
+		{
+			//play hit react montage on hit event 
+			BlasterCharacter->MulticastHit();
+			UE_LOG(LogTemp, Warning, TEXT("Character got hit"));
+		}
+	}
 
 	Destroy();
 }

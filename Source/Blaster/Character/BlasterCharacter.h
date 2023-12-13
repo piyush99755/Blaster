@@ -32,6 +32,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UAnimMontage* WeaponFireMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		 UAnimMontage* HitReactMontage;
+
 private:
 	//special type of Uproperty used to make variable replicable..
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
@@ -54,6 +57,8 @@ private:
 	FRotator StartingAimRotation;
 
 	ETurningInPlace TurningInPlace;
+
+	float CameraThreshold = 100.f;
 
 
 
@@ -82,6 +87,14 @@ public:
 	void TurnInPlace(float DeltaTime);
 
 	void PlayFireWeaponMontage(bool bAiming);
+
+	void PlayHitReactMontage();
+
+	void HideCameraIfClose();
+
+	//multicast RPC to reflect on client and server
+	UFUNCTION(NetMulticast, Unreliable)
+		void MulticastHit();
 	
 	
 
