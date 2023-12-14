@@ -60,6 +60,20 @@ private:
 
 	float CameraThreshold = 100.f;
 
+	//variables to implement smooth rotation for simulated proxies..
+	bool bRotateRootBone; 
+
+	float TurnThreshold = 0.5f;
+
+	FRotator SimulatedProxyRotationLastFrame;
+
+	FRotator SimulatedProxyRotation;
+
+	float SimulatedProxyYaw;
+
+	float TimeSinceLastReplicatedMovement;
+
+
 
 
 protected:
@@ -84,6 +98,8 @@ public:
 
 	void AimOffset(float DeltaTime);
 
+	void CalculateAO_Pitch();
+
 	void TurnInPlace(float DeltaTime);
 
 	void PlayFireWeaponMontage(bool bAiming);
@@ -95,6 +111,14 @@ public:
 	//multicast RPC to reflect on client and server
 	UFUNCTION(NetMulticast, Unreliable)
 		void MulticastHit();
+
+	void SimulatedProxiesTurn();
+
+	//inherited function from character class 
+
+	virtual void OnRep_ReplicatedMovement() override; 
+
+	float CalculateSpeed();
 	
 	
 
@@ -133,6 +157,7 @@ public:
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch;  }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
 
 	FVector GetHitTarget() const;
 

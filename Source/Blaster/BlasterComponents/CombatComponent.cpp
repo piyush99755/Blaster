@@ -12,6 +12,7 @@
 #include "DrawDebugHelpers.h"
 #include "Blaster/PlayerController/BlasterPlayerController.h"
 #include "Camera/CameraComponent.h"
+#include "TimerManager.h"
 
 
 // Sets default values for this component's properties
@@ -148,6 +149,8 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 
 }
 
+
+
 void UCombatComponent::SetAiming(bool bIsAiming)
 {
 	bAiming = bIsAiming;
@@ -227,24 +230,53 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
 
-	if (bFireButtonPressed)
+	if (bFireButtonPressed && EquippedWeapon)
 	{
-		FHitResult TraceHitResults;
-
-		TraceUnderCrosshairs(TraceHitResults);
-
-		
-		//as FireButtonPressed function called locally on server or client
-		//need to call server RPC first and it will call multicast RPC 
-		ServerFire(TraceHitResults.ImpactPoint);
-
-		if (EquippedWeapon)
-		{
-			CrosshairShootingFactor = 0.75f;
-		}
+		Fire();
 	}
 
 	
+}
+
+void UCombatComponent::Fire()
+{
+	if (bCanFire)
+	{
+		bCanFire = false;
+		//as FireButtonPressed function called locally on server or client
+	//need to call server RPC first and it will call multicast RPC 
+		ServerFire(HitTarget);
+
+		if (EquippedWeapon)
+		{
+			CrosshairShootingFactor = 5.f;
+		}
+
+		FireTimerStart();
+	}
+	
+	
+	
+}
+
+void UCombatComponent::FireTimerStart()
+{
+	if (EquippedWeapon == nullptr || Character == nullptr) return;
+
+	//set timer for fire 
+	Character->GetWorldTimerManager().SetTimer(FireHandle, this, &UCombatComponent::FireTimeFinished, EquippedWeapon->FireDelay);
+}
+
+void UCombatComponent::FireTimeFinished()
+{
+	if (EquippedWeapon == nullptr) return; 
+	
+	bCanFire = true;
+
+	if (bFireButtonPressed && EquippedWeapon->bAutomatic)
+	{
+		Fire();
+	}
 }
 
 void UCombatComponent::TraceUnderCrosshairs(FHitResult& HitResult)

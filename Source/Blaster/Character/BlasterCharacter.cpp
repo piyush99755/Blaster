@@ -53,6 +53,7 @@ ABlasterCharacter::ABlasterCharacter()
     GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
 
 	//initial state of TurningInPlace
@@ -108,7 +109,24 @@ void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	AimOffset(DeltaTime);// calling every frame 
+	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
+	{
+		AimOffset(DeltaTime);// calling every frame 
+	}
+	else
+	{
+		//after certain amount of time , if movement isnt replicated , then calling OnRep_ReplicatedMovement function ...
+		TimeSinceLastReplicatedMovement += DeltaTime;
+		if (TimeSinceLastReplicatedMovement > 0.25f)
+		{
+			OnRep_ReplicatedMovement();
+		}
+
+		CalculateAO_Pitch();
+	}
+	
+
+	HideCameraIfClose();
 
 }
 
@@ -116,14 +134,14 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 {
 	if (CombatComponent && CombatComponent->EquippedWeapon == nullptr) return;
 
-	FVector Velocity = GetVelocity();
-	Velocity.Z = 0.f;
-	float Speed = Velocity.Size();
+	
+	float Speed = CalculateSpeed();
 
 	float bIsInAir = GetCharacterMovement()->IsFalling();
 
 	if (Speed == 0.f && !bIsInAir) // standing still or not jumping
 	{
+		bRotateRootBone = true;
 		//getting aim rotation yaw by getting difference between two rotators which are current aim rotation and starting aim rotation
 		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation );
@@ -140,12 +158,18 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 
 	if (Speed > 0.f || bIsInAir)//running or jumping
 	{
+		bRotateRootBone = false;
 		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
 		TurningInPlace = ETurningInPlace::ETIP_NoTurning;//not turning if speedin >0.f or character is jumping..
 	}
 
+	CalculateAO_Pitch();
+}
+
+void ABlasterCharacter::CalculateAO_Pitch()
+{
 	AO_Pitch = GetBaseAimRotation().Pitch;
 
 	if (AO_Pitch > 90.f && !IsLocallyControlled())
@@ -454,6 +478,69 @@ void ABlasterCharacter::HideCameraIfClose()
 		}
 
 	}
+}
+
+void ABlasterCharacter::SimulatedProxiesTurn()
+{
+	if (CombatComponent == nullptr || CombatComponent->EquippedWeapon == nullptr) return;
+	
+	float Speed = CalculateSpeed();
+	
+	bRotateRootBone = false; 
+
+	//to prevent character sliding while speed is more than zero..
+	if (Speed > 0.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_NoTurning;
+		return;
+	}
+
+	
+	//setting up turning in place functionality for simulated proxy...
+	SimulatedProxyRotationLastFrame = SimulatedProxyRotation;
+	SimulatedProxyRotation = GetActorRotation();
+
+	SimulatedProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(SimulatedProxyRotation, SimulatedProxyRotationLastFrame).Yaw;
+
+	if (FMath::Abs(SimulatedProxyYaw) > TurnThreshold)
+	{
+		if (SimulatedProxyYaw > TurnThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Right;
+		}
+		else if (SimulatedProxyYaw > -TurnThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Left;
+		}
+		else
+		{
+			TurningInPlace = ETurningInPlace::ETIP_NoTurning;
+		}
+		return;
+		
+	}
+	
+	TurningInPlace = ETurningInPlace::ETIP_NoTurning;
+}
+
+//used for replication of our root component's position and velocity..
+void ABlasterCharacter::OnRep_ReplicatedMovement()
+{
+	Super::OnRep_ReplicatedMovement();
+
+	
+		SimulatedProxiesTurn();
+	
+
+	TimeSinceLastReplicatedMovement = 0.f;
+}
+
+float ABlasterCharacter::CalculateSpeed()
+{
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	return Velocity.Size();
+	 
 }
 
 void ABlasterCharacter::MulticastHit_Implementation()

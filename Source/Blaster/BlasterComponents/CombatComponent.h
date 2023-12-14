@@ -47,6 +47,8 @@ protected:
 
 	void FireButtonPressed(bool bPressed);
 
+	void Fire();
+
 	//server RPC function to handle fire functionality on server
 	UFUNCTION(Server, Reliable)
 	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
@@ -84,6 +86,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	bool bFireButtonPressed;
 
+	//zoom in variables..
 	float DefaultFOV; 
 
 	float CurrentFOV;
@@ -104,7 +107,24 @@ private:
 
 	FVector HitTarget;
 
+	//HUD package
 	FHUDPackage HUDPackage;
+
+	//automatic fire variables..
+
+	FTimerHandle FireHandle;
+
+	
+
+	bool bCanFire = true;
+
+	void FireTimerStart();
+
+	
+	void FireTimeFinished();
+
+
+
 	
 
 	

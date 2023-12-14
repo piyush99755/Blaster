@@ -58,6 +58,8 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	//turning in place
 	TurningInPlace = BlasterCharacter->GetTurningInPlace();
 
+	bRotateRootBone = BlasterCharacter->ShouldRotateRootBone();
+
 	
 
 	//functionality for lean

@@ -42,6 +42,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UTexture2D* CrosshairsBottom;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float FireDelay = 0.15f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bAutomatic = true;
+
 	
 
 protected:
@@ -91,6 +97,8 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		float ZoomInterpSpeed = 20.f;
+
+	
 
 	
 
