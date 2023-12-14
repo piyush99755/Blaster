@@ -29,6 +29,19 @@ class BLASTER_API ABlasterHUD : public AHUD
 
 		virtual void DrawHUD() override;
 
+	//to choose overlay class 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> CharacterOverlayClass;
+
+	
+	
+
+protected:
+
+	virtual void BeginPlay() override;
+
+	void AddCharacterOverlay();
+
 private:
 
 	
@@ -38,6 +51,8 @@ private:
 	float CrosshairMaxSpread = 16.f;
 
 public:
+
+	class UCharacterOverlay* CharacterOverlay;
 
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
     

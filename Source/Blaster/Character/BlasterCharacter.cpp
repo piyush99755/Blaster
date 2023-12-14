@@ -14,6 +14,7 @@
 #include "BlasterAnimInstance.h"
 #include "Animation/AnimMontage.h"
 #include "Blaster/Blaster.h"
+#include "Blaster/PlayerController/BlasterPlayerController.h"
 
 
 
@@ -91,6 +92,7 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	//this function is used to relicate variable,which takes class and variable and condition as parameters..
 	//this will replicate variable to owner only, means one who overlapping with weapon
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(ABlasterCharacter, Health);
 }
 
 
@@ -99,6 +101,12 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	BlasterPlayerController = Cast<ABlasterPlayerController>(Controller);
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHealthHUD(Health, MaxHealth);
+	}
 	
 }
 
@@ -309,6 +317,10 @@ void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 	{
 		LastWeapon->ShowPickupWidget(false);
 	}
+}
+
+void ABlasterCharacter::OnRep_Health()
+{
 }
 
 

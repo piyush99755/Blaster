@@ -35,6 +35,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		 UAnimMontage* HitReactMontage;
 
+	//Player Health variables
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxHealth = 100.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere)
+	float Health = 100.f;
+
+	class ABlasterPlayerController* BlasterPlayerController; 
+
+
 private:
 	//special type of Uproperty used to make variable replicable..
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
@@ -43,6 +53,9 @@ private:
 	//rep notify
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(class AWeapon* LastWeapon);
+
+	UFUNCTION()
+	void OnRep_Health();
 
 	//create RPC(Remote Procedure Calls)function in intention to call this in client and executed on server
 	UFUNCTION(Server, Reliable)

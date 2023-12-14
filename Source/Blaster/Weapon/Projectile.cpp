@@ -79,6 +79,8 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 			BlasterCharacter->MulticastHit();
 			UE_LOG(LogTemp, Warning, TEXT("Character got hit"));
 		}
+
+		
 	}
 
 	Destroy();
