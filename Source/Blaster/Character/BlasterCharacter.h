@@ -35,6 +35,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		 UAnimMontage* HitReactMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UAnimMontage* DeathMontage;
+
 	//Player Health variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxHealth = 100.f;
@@ -85,6 +88,8 @@ private:
 
 	float TimeSinceLastReplicatedMovement;
 
+	bool bEliminated = false; 
+
 
 
 
@@ -121,6 +126,8 @@ public:
 
 	void PlayHitReactMontage();
 
+	void PlayDeathMontage();
+
 	void HideCameraIfClose();
 
 	
@@ -137,6 +144,9 @@ public:
 		void OnRep_Health();
 
 	void UpdateHUDHealth();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Elimination();
 	
 	
 
@@ -176,6 +186,7 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
+	FORCEINLINE bool IsEliminated() const { return bEliminated; }
 
 	FVector GetHitTarget() const;
 

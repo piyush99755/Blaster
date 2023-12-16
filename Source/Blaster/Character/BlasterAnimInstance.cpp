@@ -42,6 +42,8 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	bAiming = BlasterCharacter->IsAiming();
 
+	bEliminated = BlasterCharacter->IsEliminated();
+
 	FRotator AimRotation = BlasterCharacter->GetBaseAimRotation();
 	
 

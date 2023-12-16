@@ -15,6 +15,7 @@
 #include "Animation/AnimMontage.h"
 #include "Blaster/Blaster.h"
 #include "Blaster/PlayerController/BlasterPlayerController.h"
+#include "Blaster/Gamemode/BlasterGameMode.h"
 
 
 
@@ -337,6 +338,12 @@ void ABlasterCharacter::UpdateHUDHealth()
 	}
 }
 
+void ABlasterCharacter::Elimination_Implementation()
+{
+	bEliminated = true;
+	PlayDeathMontage();
+}
+
 
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
@@ -421,6 +428,21 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 
 	UpdateHUDHealth();
 	PlayHitReactMontage();
+
+	if (Health == 0.f)
+	{
+		//casting blaster game mode... 
+		ABlasterGameMode* BlasterGameMode = Cast<ABlasterGameMode>(GetWorld()->GetAuthGameMode());
+		if (BlasterGameMode)
+		{
+			Elimination();
+			BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+
+			ABlasterPlayerController* AttackerController = Cast<ABlasterPlayerController>(GetInstigatorController());
+			BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackerController);
+		}
+	}
+	
 }
 
 
@@ -485,6 +507,18 @@ void ABlasterCharacter::PlayHitReactMontage()
 		FName SectionName("FromFront");//getting section name to play appropriate montage
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
+}
+
+void ABlasterCharacter::PlayDeathMontage()
+{
+	
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && DeathMontage)
+	{
+		AnimInstance->Montage_Play(DeathMontage);
+		AnimInstance->Montage_JumpToSection(FName("Elim"));
+    }
 }
 
 void ABlasterCharacter::HideCameraIfClose()
