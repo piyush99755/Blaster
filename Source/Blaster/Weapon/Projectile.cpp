@@ -69,20 +69,6 @@ void AProjectile::Tick(float DeltaTime)
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor)
-	{
-		ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(OtherActor);
-
-		if (BlasterCharacter)
-		{
-			//play hit react montage on hit event 
-			BlasterCharacter->MulticastHit();
-			UE_LOG(LogTemp, Warning, TEXT("Character got hit"));
-		}
-
-		
-	}
-
 	Destroy();
 }
 

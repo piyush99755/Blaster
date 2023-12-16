@@ -54,8 +54,7 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(class AWeapon* LastWeapon);
 
-	UFUNCTION()
-	void OnRep_Health();
+	
 
 	//create RPC(Remote Procedure Calls)function in intention to call this in client and executed on server
 	UFUNCTION(Server, Reliable)
@@ -105,6 +104,9 @@ protected:
 
 	void FireButtonReleased();
 
+	UFUNCTION()
+	void ReceiveDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
 public:	
 	
 	virtual void Tick(float DeltaTime) override;
@@ -121,9 +123,7 @@ public:
 
 	void HideCameraIfClose();
 
-	//multicast RPC to reflect on client and server
-	UFUNCTION(NetMulticast, Unreliable)
-		void MulticastHit();
+	
 
 	void SimulatedProxiesTurn();
 
@@ -132,6 +132,11 @@ public:
 	virtual void OnRep_ReplicatedMovement() override; 
 
 	float CalculateSpeed();
+
+	UFUNCTION()
+		void OnRep_Health();
+
+	void UpdateHUDHealth();
 	
 	
 
