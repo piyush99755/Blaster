@@ -16,6 +16,7 @@
 #include "Blaster/Blaster.h"
 #include "Blaster/PlayerController/BlasterPlayerController.h"
 #include "Blaster/Gamemode/BlasterGameMode.h"
+#include "TimerManager.h"
 
 
 
@@ -338,13 +339,48 @@ void ABlasterCharacter::UpdateHUDHealth()
 	}
 }
 
-void ABlasterCharacter::Elimination_Implementation()
+void ABlasterCharacter::Elimination()
+{
+	if (CombatComponent && CombatComponent->EquippedWeapon)
+	{
+		CombatComponent->EquippedWeapon->Dropped();
+	}
+	MulticastElimination();
+
+	GetWorldTimerManager().SetTimer(ElimTimerHandle,this,  &ABlasterCharacter::ElimTimerFinished, ElimDelay);
+
+}
+
+void ABlasterCharacter::MulticastElimination_Implementation()
 {
 	bEliminated = true;
 	PlayDeathMontage();
+
+	//disable character movement..
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+
+	if (BlasterPlayerController)
+	{
+		DisableInput(BlasterPlayerController);
+	}
+
+	//disable collision
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 
+
+void ABlasterCharacter::ElimTimerFinished()
+{
+	//once elim timer finished then this function from game mode will respawn player at ramdom player start location 
+	ABlasterGameMode* BlasterGameMode = Cast <ABlasterGameMode>(GetWorld()->GetAuthGameMode());
+	if (BlasterGameMode)
+	{
+		BlasterGameMode->RequestRespawn(this, Controller);
+	}
+}
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {

@@ -140,13 +140,23 @@ public:
 
 	float CalculateSpeed();
 
+	//health variable and function..
 	UFUNCTION()
 		void OnRep_Health();
 
 	void UpdateHUDHealth();
 
-	UFUNCTION(NetMulticast, Reliable)
+	//variables and function for eliminate player on death 
 	void Elimination();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastElimination();
+
+	FTimerHandle ElimTimerHandle;
+
+	float ElimDelay = 1.5f;
+
+	void ElimTimerFinished();
 	
 	
 

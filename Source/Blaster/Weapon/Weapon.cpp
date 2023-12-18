@@ -128,9 +128,55 @@ void AWeapon::SetWeaponStatus(EWeaponState State)
 	case EWeaponState::EWS_Equipped:
 		ShowPickupWidget(false);
 		WeaponSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		break;
+
+		//setting up weapon properties once weapon is equipped 
+		WeaponMesh->SetSimulatePhysics(false);
+		WeaponMesh->SetEnableGravity(false);
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        break;
+
+	case EWeaponState::EWS_Dropped:
+		if (HasAuthority())
+		{
+			WeaponSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		}
+		//setting simulate physcis and gravity to true when weapon is in dropped state..
+		WeaponMesh->SetSimulatePhysics(true);
+		WeaponMesh->SetEnableGravity(true);
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
 
+}
+
+void AWeapon::OnRep_WeaponState()
+{
+	switch (WeaponState)
+	{
+	case EWeaponState::EWS_Equipped:
+		ShowPickupWidget(false);
+		break;
+
+	case EWeaponState::EWS_Dropped:
+		if (HasAuthority())
+		{
+			WeaponSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		}
+		//setting simulate physcis and gravity to true when weapon is in dropped state..
+		WeaponMesh->SetSimulatePhysics(true);
+		WeaponMesh->SetEnableGravity(true);
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+	
+}
+
+void AWeapon::Dropped()
+{
+	SetWeaponStatus(EWeaponState::EWS_Dropped);
+
+	//detaching weapon when weapon gets into dropped state..
+	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
+	WeaponMesh->DetachFromComponent(DetachRules);
+	SetOwner(nullptr);
 }
 
 void AWeapon::Fire(const FVector& HitTarget)
@@ -163,16 +209,9 @@ void AWeapon::Fire(const FVector& HitTarget)
 }
 
 
-void AWeapon::OnRep_WeaponState()
-{
-	switch (WeaponState)
-	{
-	case EWeaponState::EWS_Equipped:
-		ShowPickupWidget(false);
-		
-		break;
-	}
-}
+
+
+
 
 void AWeapon::ShowPickupWidget(bool bShowWidget)
 {
