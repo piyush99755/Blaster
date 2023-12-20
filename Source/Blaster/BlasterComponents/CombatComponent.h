@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Blaster/HUD/BlasterHUD.h"
+#include "Blaster/Weapon/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 80000.f;
@@ -86,6 +87,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	bool bFireButtonPressed;
 
+	bool CanFire();
+
 	//zoom in variables..
 	float DefaultFOV; 
 
@@ -122,6 +125,21 @@ private:
 
 	
 	void FireTimeFinished();
+
+	//variable and function for carried ammo
+	//carried ammo for currently equipped weapon
+	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
+	int32 CarriedAmmo; 
+
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+
+	//using TMAP as different type of weapons will be used and ammo for different types of weapon will be different amount
+	TMap<EWeaponType, int32> CarriedAmmoMap; //key, value pair... 
+
+	int32 StartingARAmmo = 100;
+
+	void InitializeCarriedAmmo();
 
 
 

@@ -351,8 +351,15 @@ void ABlasterCharacter::Elimination()
 
 }
 
+
+
 void ABlasterCharacter::MulticastElimination_Implementation()
 {
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetWeaponAmmoHUD(0);
+	}
+
 	bEliminated = true;
 	PlayDeathMontage();
 
@@ -382,6 +389,42 @@ void ABlasterCharacter::ElimTimerFinished()
 	}
 }
 
+void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (DamagedActor == this)
+	{
+		Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+
+
+		UpdateHUDHealth();
+		PlayHitReactMontage();
+
+		if (Health == 0.f)
+		{
+
+
+			//casting blaster game mode... 
+			ABlasterGameMode* BlasterGameMode = Cast<ABlasterGameMode>(GetWorld()->GetAuthGameMode());
+			if (BlasterGameMode)
+			{
+				Elimination();
+				BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+
+				ABlasterPlayerController* AttackingController =  Cast<ABlasterPlayerController>(InstigatedBy->GetInstigatorController());
+				BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackingController);
+			}
+
+
+
+		}
+
+
+
+	}
+
+	}
+	
+	
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
 	if (OverlappingWeapon)
@@ -458,28 +501,7 @@ void ABlasterCharacter::FireButtonReleased()
 	}
 }
 
-void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
-{
-	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
 
-	UpdateHUDHealth();
-	PlayHitReactMontage();
-
-	if (Health == 0.f)
-	{
-		//casting blaster game mode... 
-		ABlasterGameMode* BlasterGameMode = Cast<ABlasterGameMode>(GetWorld()->GetAuthGameMode());
-		if (BlasterGameMode)
-		{
-			Elimination();
-			BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
-
-			ABlasterPlayerController* AttackerController = Cast<ABlasterPlayerController>(GetInstigatorController());
-			BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackerController);
-		}
-	}
-	
-}
 
 
 bool ABlasterCharacter::IsAiming()

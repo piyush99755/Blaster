@@ -6,10 +6,25 @@
 #include "Blaster/HUD/CharacterOverlay.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Blaster/Character/BlasterCharacter.h"
 
 void ABlasterPlayerController::BeginPlay()
 {
 	BlasterHUD = Cast<ABlasterHUD>(GetHUD());
+	
+}
+
+void ABlasterPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	if (BlasterCharacter)
+	{
+		BlasterCharacter = Cast<ABlasterCharacter>(InPawn);
+		
+		SetHealthHUD(BlasterCharacter->GetHealth(), BlasterCharacter->GetMaxHealth());
+	}
+
 	
 }
 
@@ -34,5 +49,52 @@ void ABlasterPlayerController::SetHealthHUD(float Health, float MaxHealth)
 
 	}
 }
+
+/*void ABlasterPlayerController::SetScoreHUD(float Score)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+
+	bool bValidHUD = BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->ScoreAmount;
+
+	if (bValidHUD)
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"),FMath::FloorToInt(Score));
+		BlasterHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
+	}
+		
+}*/
+
+void ABlasterPlayerController::SetWeaponAmmoHUD(int32 Ammo)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+
+	bool bValidHUD = BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->WeaponAmmoAmount;
+
+	if (bValidHUD)
+	{
+		FString WeaponAmmoText = FString::Printf(TEXT("%d"), Ammo);
+		BlasterHUD->CharacterOverlay->WeaponAmmoAmount->SetText(FText::FromString(WeaponAmmoText));
+	}
+}
+
+void ABlasterPlayerController::SetCarriedAmmoHUD(int32 Ammo)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+
+	bool bValidHUD = BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->CarriedAmmoAmount;
+
+	if (bValidHUD)
+	{
+		FString CarriedAmmoText = FString::Printf(TEXT("%d"), Ammo);
+		BlasterHUD->CharacterOverlay->CarriedAmmoAmount->SetText(FText::FromString(CarriedAmmoText));
+	}
+}
+
 
 

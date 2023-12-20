@@ -43,6 +43,11 @@ void UCombatComponent::BeginPlay()
 			DefaultFOV = Character->GetFollowCamera()->FieldOfView;
 			CurrentFOV = DefaultFOV;
 		}
+
+		if (Character->HasAuthority())
+		{
+			InitializeCarriedAmmo();
+		}
 	
 	}
 
@@ -149,6 +154,13 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 
 }
 
+bool UCombatComponent::CanFire()
+{
+	if(EquippedWeapon == nullptr) return false;
+	return !EquippedWeapon->IsEmpty() || !bCanFire;
+	
+}
+
 
 
 void UCombatComponent::SetAiming(bool bIsAiming)
@@ -200,11 +212,17 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);//replicating equipped weapon variable so it reflect to all clients
 	DOREPLIFETIME(UCombatComponent, bAiming);
+	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	if (Character == nullptr || WeaponToEquip == nullptr) return;
+
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->Dropped();
+	}
 
 	EquippedWeapon = WeaponToEquip;
 
@@ -223,11 +241,29 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	}
 	//setting weapon owner as character
 	EquippedWeapon->SetOwner(Character);
+	//initialize Carried ammo map key (weapon type)before setting up carried ammo value to the HUD..
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+	}
+
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller; 
+	if (Controller)
+	{
+        Controller->SetCarriedAmmoHUD(CarriedAmmo);
+	}
+	EquippedWeapon->SetHUDAmmo();
 
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->bUseControllerRotationYaw = true;
 
 	
+}
+
+void UCombatComponent::InitializeCarriedAmmo()
+{
+	//emplace let us avoid storing any temporary values..
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_AssaultRifle, StartingARAmmo);
 }
 
 
@@ -246,7 +282,7 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 
 void UCombatComponent::Fire()
 {
-	if (bCanFire)
+	if (CanFire())
 	{
 		bCanFire = false;
 		//as FireButtonPressed function called locally on server or client
@@ -284,6 +320,17 @@ void UCombatComponent::FireTimeFinished()
 		Fire();
 	}
 }
+
+void UCombatComponent::OnRep_CarriedAmmo()
+{
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	if (Controller)
+	{
+		Controller->SetCarriedAmmoHUD(CarriedAmmo);
+	}
+}
+
+
 
 void UCombatComponent::TraceUnderCrosshairs(FHitResult& HitResult)
 {

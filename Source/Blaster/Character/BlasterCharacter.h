@@ -45,7 +45,10 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere)
 	float Health = 100.f;
 
+	UPROPERTY()
 	class ABlasterPlayerController* BlasterPlayerController; 
+
+	
 
 
 private:
@@ -152,6 +155,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastElimination();
 
+	
+
 	FTimerHandle ElimTimerHandle;
 
 	float ElimDelay = 1.5f;
@@ -197,6 +202,8 @@ public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
 	FORCEINLINE bool IsEliminated() const { return bEliminated; }
+	FORCEINLINE float GetHealth() const { return Health;}
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 
 	FVector GetHitTarget() const;
 

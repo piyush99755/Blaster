@@ -10,6 +10,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Casing.h"
+#include "Blaster/PlayerController/BlasterPlayerController.h"
 
 AWeapon::AWeapon()
 {
@@ -75,7 +76,10 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AWeapon, WeaponState);
+	DOREPLIFETIME(AWeapon, Ammo);
 }
+
+
 
 void AWeapon::Tick(float DeltaTime)
 {
@@ -177,6 +181,8 @@ void AWeapon::Dropped()
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
 	SetOwner(nullptr);
+	BlasterOwnerCharacter = nullptr;
+	BlasterOwnerController = nullptr;
 }
 
 void AWeapon::Fire(const FVector& HitTarget)
@@ -206,12 +212,62 @@ void AWeapon::Fire(const FVector& HitTarget)
 			
 		}
 	}
+
+	SpendRound();
+}
+
+void AWeapon::SetHUDAmmo()
+{
+	//setting and updating  weapon ammo hud on every round spent...
+	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;
+	if (BlasterOwnerCharacter)
+	{
+		BlasterOwnerController = BlasterOwnerController == nullptr ? Cast <ABlasterPlayerController>(BlasterOwnerCharacter->Controller) : BlasterOwnerController;
+		if (BlasterOwnerController)
+		{
+			BlasterOwnerController->SetWeaponAmmoHUD(Ammo);
+		}
+	}
+}
+
+
+void AWeapon::SpendRound()
+{
+	//stop ammo from firing at value of 0
+	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
+
+	SetHUDAmmo();
+
+}
+
+bool AWeapon::IsEmpty()
+{
+	return Ammo <= 0;
 }
 
 
 
+void AWeapon::OnRep_Ammo()
+{
+	SetHUDAmmo();
+}
 
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
 
+	if (Owner == nullptr)
+	{
+		BlasterOwnerCharacter = nullptr;
+		BlasterOwnerController = nullptr;
+	}
+	else
+	{
+		SetHUDAmmo();
+	}
+	
+	
+}
 
 void AWeapon::ShowPickupWidget(bool bShowWidget)
 {
