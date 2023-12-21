@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "Blaster/HUD/BlasterHUD.h"
 #include "Blaster/Weapon/WeaponTypes.h"
+#include "Blaster/BlasterTypes/CombatState.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 80000.f;
@@ -27,7 +28,15 @@ public:
 
 	void EquipWeapon(class AWeapon* WeaponToEquip);
 
+	void Reload();
+
 	void InterpFOV(float DeltaTime);
+
+	//function to implmenet in animation blueprint so prevent playing montage spamming 
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
+
+
 
 	
 
@@ -57,6 +66,9 @@ protected:
    //multicast RPC function to handle fire functionality on both server and client
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
+
+	UFUNCTION(Server, Reliable)
+		void ServerReload();
 
 	void TraceUnderCrosshairs(FHitResult& HitResult);
 
@@ -140,6 +152,15 @@ private:
 	int32 StartingARAmmo = 100;
 
 	void InitializeCarriedAmmo();
+
+	//reloading
+	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
+	ECombatState CombatState = ECombatState::ECS_Unoccupied;
+
+	UFUNCTION()
+	void OnRep_CombatState();
+
+	void HandleReload();
 
 
 

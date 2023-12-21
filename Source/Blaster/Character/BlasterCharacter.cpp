@@ -17,6 +17,7 @@
 #include "Blaster/PlayerController/BlasterPlayerController.h"
 #include "Blaster/Gamemode/BlasterGameMode.h"
 #include "TimerManager.h"
+#include "Blaster/Weapon/WeaponTypes.h"
 
 
 
@@ -242,6 +243,8 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABlasterCharacter::FireButtonPressed);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABlasterCharacter::FireButtonReleased);
+
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ABlasterCharacter::ReloadButtonPressed);
 	
 
 }
@@ -483,6 +486,14 @@ void ABlasterCharacter::AimButtonReleased()
 	}
 }
 
+void ABlasterCharacter::ReloadButtonPressed()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->Reload();
+	}
+}
+
 
 
 void ABlasterCharacter::FireButtonPressed()
@@ -514,6 +525,13 @@ AWeapon* ABlasterCharacter::GetEquippedWeapon()
 	if(CombatComponent == nullptr) return nullptr;
 
 	return CombatComponent->EquippedWeapon;
+}
+
+ECombatState ABlasterCharacter::GetCombatState() const
+{
+	if (CombatComponent == nullptr) return ECombatState::ECS_MAX;
+
+	return CombatComponent->CombatState;
 }
 
 FVector ABlasterCharacter::GetHitTarget() const
@@ -549,6 +567,26 @@ void ABlasterCharacter::PlayFireWeaponMontage(bool bAiming)
 		FName SectionName;
 		SectionName = bAiming ? FName("AimRifle") : FName("HipRifle");//getting section name to play appropriate montage
 		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+void ABlasterCharacter::PlayReloadMontage()
+{
+	if (CombatComponent == nullptr || CombatComponent->EquippedWeapon == nullptr) return;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ReloadMontage)
+	{
+		AnimInstance->Montage_Play(ReloadMontage);
+		FName SectionName;
+
+		switch (CombatComponent->EquippedWeapon->GetWeaponType())
+		{
+		case EWeaponType::EWT_AssaultRifle:
+			SectionName = FName("RifleReload");
+			break;
+		}
+        AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
 

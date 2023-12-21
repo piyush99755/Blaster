@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Blaster/BlasterTypes/TurningInPlace.h"
 #include "Blaster/Interfaces/InteractWithCrosshairInterface.h"
+#include "Blaster/BlasterTypes/CombatState.h"
 #include "BlasterCharacter.generated.h"
 
 UCLASS()
@@ -31,6 +32,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UAnimMontage* WeaponFireMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		 UAnimMontage* ReloadMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		 UAnimMontage* HitReactMontage;
@@ -127,6 +131,8 @@ public:
 
 	void PlayFireWeaponMontage(bool bAiming);
 
+	void PlayReloadMontage();
+
 	void PlayHitReactMontage();
 
 	void PlayDeathMontage();
@@ -190,6 +196,8 @@ public:
 
 	void AimButtonReleased();
 
+	void ReloadButtonPressed();
+
 	
 
 	bool IsAiming();
@@ -204,6 +212,8 @@ public:
 	FORCEINLINE bool IsEliminated() const { return bEliminated; }
 	FORCEINLINE float GetHealth() const { return Health;}
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+
+	ECombatState GetCombatState() const;
 
 	FVector GetHitTarget() const;
 
