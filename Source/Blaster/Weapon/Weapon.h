@@ -112,10 +112,6 @@ private:
 
 	void SpendRound();
 
-	
-
-	
-
 	UPROPERTY(EditAnywhere)
 	int32 MagCapacity;
 
@@ -128,12 +124,8 @@ private:
 	UPROPERTY(EditAnywhere)
 		EWeaponType WeaponType; 
 
-	
-
-	
-
-
-
+	UPROPERTY(EditAnywhere)
+	 class USoundCue* EquipSound;
 
 public:
 
@@ -147,6 +139,9 @@ public:
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const  { return ZoomInterpSpeed; }
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+	FORCEINLINE int32 GetAmmo() const { return Ammo; }
+	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
+	FORCEINLINE USoundCue* GetEquipSound() const { return EquipSound; }
 
 	
 	void SetWeaponStatus(EWeaponState State);
@@ -158,6 +153,8 @@ public:
 	void SetHUDAmmo();
 
 	bool IsEmpty();
+
+	void AddAmmo(int32 AmmoToAdd);
 
 
 

@@ -165,9 +165,13 @@ public:
 
 	FTimerHandle ElimTimerHandle;
 
+	UPROPERTY(EditAnywhere)
 	float ElimDelay = 1.5f;
 
 	void ElimTimerFinished();
+
+	UFUNCTION(BlueprintCallable)
+	void DeathFinished();
 	
 	
 

@@ -58,7 +58,7 @@ ABlasterCharacter::ABlasterCharacter()
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 650.f);
 
 	//initial state of TurningInPlace
 	TurningInPlace = ETurningInPlace::ETIP_NoTurning;
@@ -75,13 +75,10 @@ void ABlasterCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	if (CombatComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Combat component is set"));
+		
 		CombatComponent->Character = this;
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Combat component is not set"));
-	}
+	
 }
 
 
@@ -390,6 +387,26 @@ void ABlasterCharacter::ElimTimerFinished()
 	{
 		BlasterGameMode->RequestRespawn(this, Controller);
 	}
+}
+
+void ABlasterCharacter::DeathFinished()
+{
+	bEliminated = true;
+
+	GetMesh()->bPauseAnims = true;
+	GetMesh()->bNoSkeletonUpdate = true;
+	//disable character movement..
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+
+	if (BlasterPlayerController)
+	{
+		DisableInput(BlasterPlayerController);
+	}
+
+	//disable collision
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)

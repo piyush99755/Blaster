@@ -117,5 +117,7 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	//use FABRIK when not in reloading combat state...
 	bUseFABRIK = BlasterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+	bUseOffsets = BlasterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+	bUseRightHandTransform = BlasterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
 
 }

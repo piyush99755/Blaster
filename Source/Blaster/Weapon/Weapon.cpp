@@ -245,6 +245,13 @@ bool AWeapon::IsEmpty()
 	return Ammo <= 0;
 }
 
+void AWeapon::AddAmmo(int32 AmmoToAdd)
+{
+	//clamping value to make sure that value doesnot go below 0 and above mag capacity
+	Ammo = FMath::Clamp(Ammo - AmmoToAdd, 0, MagCapacity);
+	SetHUDAmmo();
+}
+
 
 
 void AWeapon::OnRep_Ammo()
