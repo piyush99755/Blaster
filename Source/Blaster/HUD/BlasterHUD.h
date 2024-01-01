@@ -29,9 +29,12 @@ class BLASTER_API ABlasterHUD : public AHUD
 
 		virtual void DrawHUD() override;
 
+
+
 	//to choose overlay class 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UUserWidget> CharacterOverlayClass;
+
 
 	
 	
@@ -40,7 +43,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void AddCharacterOverlay();
+	
 
 private:
 
@@ -52,7 +55,10 @@ private:
 
 public:
 
+	UPROPERTY()
 	class UCharacterOverlay* CharacterOverlay;
+
+	void AddCharacterOverlay();
 
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
     

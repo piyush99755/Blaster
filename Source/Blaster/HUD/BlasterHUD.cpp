@@ -56,8 +56,7 @@ void ABlasterHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//adding character overlay widget on very start of game.. 
-	AddCharacterOverlay();
+	
 }
 
 void ABlasterHUD::AddCharacterOverlay()

@@ -7,11 +7,21 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Blaster/Character/BlasterCharacter.h"
+#include "Net/UnrealNetwork.h"
+#include "Blaster/Gamemode/BlasterGameMode.h"
+
+
 
 void ABlasterPlayerController::BeginPlay()
 {
 	BlasterHUD = Cast<ABlasterHUD>(GetHUD());
 	
+}
+
+void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABlasterPlayerController, MatchState);
 }
 
 void ABlasterPlayerController::Tick(float DeltaTime)
@@ -21,6 +31,8 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 	SetHUDTime();
 
 	CheckTimeSync(DeltaTime);
+
+	PollInIt();
 
 	
 }
@@ -65,6 +77,8 @@ void ABlasterPlayerController::CheckTimeSync(float DeltaTime)
 	}
 }
 
+
+
 void ABlasterPlayerController::ServerRequestServerTime_Implementation(float TimeOfClientRequest)
 {
 	//server getting its own time
@@ -105,6 +119,14 @@ void ABlasterPlayerController::SetHealthHUD(float Health, float MaxHealth)
 		FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
 		BlasterHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
 
+	}
+
+	else
+	{
+		//when bValidHUD fails, these member variables will initialize value of health and max health in character overlay..
+		bInitializeCharacterOverlay = true;
+		HUDHealth = Health;
+		HUDMaxHealth = MaxHealth;
 	}
 }
 
@@ -181,6 +203,53 @@ void ABlasterPlayerController::SetHUDTime()
 		SetMatchCountdownTime(MatchTime - GetServerTime());
 	}
 	CountdownInt = SecondsLeft;
+}
+
+void ABlasterPlayerController::OnMatchStateSet(FName State)
+{
+	MatchState = State;
+
+	if (MatchState == MatchState::InProgress)
+	{
+		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+		if (BlasterHUD)
+		{
+			//add character overlay only when Match state is in progress state...
+			BlasterHUD->AddCharacterOverlay();
+		}
+
+	}
+
+
+}
+
+void ABlasterPlayerController::OnRep_MatchState()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+		if (BlasterHUD)
+		{
+			//add character overlay only when Match state is in progress state...
+			BlasterHUD->AddCharacterOverlay();
+		}
+
+	}
+}
+
+void ABlasterPlayerController::PollInIt()
+{
+	if (CharacterOverlay == nullptr)
+	{
+		if (BlasterHUD && BlasterHUD->CharacterOverlay)
+		{
+			CharacterOverlay = BlasterHUD->CharacterOverlay;
+			if (CharacterOverlay)
+			{
+				SetHealthHUD(HUDHealth, HUDMaxHealth);
+			}
+		}
+	}
 }
 
 

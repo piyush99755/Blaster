@@ -27,6 +27,8 @@ public:
 	void SetMatchCountdownTime(float CountdownTime);
 
 	void SetHUDTime();
+
+	void OnMatchStateSet(FName State);
 	
 
 
@@ -35,6 +37,9 @@ public:
 
 	UPROPERTY()
 	class ABlasterCharacter* BlasterCharacter;
+
+	UPROPERTY()
+		class UCharacterOverlay* CharacterOverlay;
 
 	float MatchTime = 120.f;
 
@@ -48,9 +53,25 @@ public:
 
 	float TimeSyncedRunningTime = 0.f;
 
+	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
+	FName MatchState;
+
+	UFUNCTION()
+	void OnRep_MatchState();
+
+	void PollInIt();
+
+	bool bInitializeCharacterOverlay = false;
+
+	float HUDHealth;
+
+	float HUDMaxHealth;
+
 protected:
 
 	virtual void BeginPlay() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void Tick(float DeltaTime)override;
 
@@ -74,5 +95,7 @@ protected:
 	virtual float GetServerTime(); 
 
 	void CheckTimeSync(float DeltaTime);
+
+	
 	
 };

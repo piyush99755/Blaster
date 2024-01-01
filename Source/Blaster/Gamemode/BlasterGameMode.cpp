@@ -8,6 +8,11 @@
 #include "GameFramework/PlayerStart.h"
 #include "Blaster/PlayerState/BlasterPlayerState.h"
 
+ABlasterGameMode::ABlasterGameMode()
+{
+	bDelayedStart = true;
+}
+
 void ABlasterGameMode::PlayerEliminated(class ABlasterCharacter* ElimmedPlayer,class ABlasterPlayerController* VictimController,  ABlasterPlayerController* AttackingController)
 {
 	//getting player state using player controllers as it has function to score functionality 
@@ -52,4 +57,46 @@ void ABlasterGameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController*
 		RestartPlayerAtPlayerStart(ElimmedController, PlayerStarts[Selection]);
 	}
 	
+}
+
+void ABlasterGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//actual time when map launches..
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
+void ABlasterGameMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (MatchState == MatchState::WaitingToStart)
+	{
+		//calculating countdown time by substrating the time game starts on server from warm up time then
+	    //adding level starting time to it which gives right amount of time 
+		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+
+
+		//when countdown time reaches zero , match starts.. 
+		if (CountdownTime <= 0.f)
+		{
+			StartMatch();
+		}
+	}
+}
+
+void ABlasterGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+
+	//as match state changes it will update it to all player controllers exist in the game level.. 
+	for (FConstPlayerControllerIterator IT = GetWorld()->GetPlayerControllerIterator(); IT; ++IT)
+	{
+		ABlasterPlayerController* BlasterPlayer = Cast<ABlasterPlayerController>(*IT);
+		if (BlasterPlayer)
+		{
+			BlasterPlayer->OnMatchStateSet(MatchState);
+		}
+	}
 }
