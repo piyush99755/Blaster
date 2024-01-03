@@ -35,6 +35,9 @@ class BLASTER_API ABlasterHUD : public AHUD
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UUserWidget> CharacterOverlayClass;
 
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UUserWidget> AnnouncementWidgetClass;
+
 
 	
 	
@@ -59,6 +62,11 @@ public:
 	class UCharacterOverlay* CharacterOverlay;
 
 	void AddCharacterOverlay();
+
+	UPROPERTY()
+	class UAnnouncement* AnnouncementWidget;
+
+	void AddAnnouncement();
 
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
     

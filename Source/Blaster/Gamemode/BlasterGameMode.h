@@ -9,6 +9,12 @@
 /**
  * 
  */
+
+namespace MatchState
+{
+	extern BLASTER_API const FName Cooldown; // match time ended and display winner 
+}
+
 UCLASS()
 class BLASTER_API ABlasterGameMode : public AGameMode
 {
@@ -25,7 +31,20 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float WarmupTime = 10.f;
 
+	UPROPERTY(EditDefaultsOnly)
+		float MatchTime = 120.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float CooldownTime = 10.f;
+
 	float LevelStartingTime = 0.f;
+
+	FORCEINLINE float GetCountdownTime() const {
+		return CountdownTime;
+	}
+
+	
+
 
 protected:
 
@@ -37,6 +56,8 @@ protected:
 
 private:
 
-	float CountdownTime = 0.f; 
+	float CountdownTime = 0.f;
+
+	 
 
 };

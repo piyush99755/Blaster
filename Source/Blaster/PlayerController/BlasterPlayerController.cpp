@@ -8,14 +8,16 @@
 #include "Components/TextBlock.h"
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Net/UnrealNetwork.h"
+#include "Blaster/HUD/Announcement.h"
 #include "Blaster/Gamemode/BlasterGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 
 
 void ABlasterPlayerController::BeginPlay()
 {
 	BlasterHUD = Cast<ABlasterHUD>(GetHUD());
-	
+	ServerCheckMatchState();
 }
 
 void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -75,6 +77,46 @@ void ABlasterPlayerController::CheckTimeSync(float DeltaTime)
 		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
 		TimeSyncedRunningTime = 0.f; //resetting time of checking wether time between server and client is synced or not
 	}
+}
+
+
+
+void ABlasterPlayerController::ServerCheckMatchState_Implementation()
+{
+	ABlasterGameMode* GameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	if (GameMode)
+	{
+		WarmupTime = GameMode->WarmupTime;
+		MatchTime = GameMode->MatchTime;
+		CooldownTime = GameMode->CooldownTime;
+		LevelStartingTime = GameMode->LevelStartingTime;
+		MatchState = GameMode->GetMatchState();
+		ClientJoinMidGame(MatchState, WarmupTime, MatchTime,CooldownTime, LevelStartingTime);
+
+		
+	}
+}
+
+
+void ABlasterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMatch, float Warmup, float Match, float Cooldown, float StartingTime)
+{
+	MatchState = StateOfMatch;
+	WarmupTime = Warmup;
+	MatchTime = Match;
+	CooldownTime = Cooldown;
+	LevelStartingTime = StartingTime; 
+
+	OnMatchStateSet(MatchState);
+
+	if (BlasterHUD && MatchState == MatchState::WaitingToStart)
+	{
+		if (BlasterHUD)
+		{
+			//adding announcement at very beginning of the game starts..
+			BlasterHUD->AddAnnouncement();
+		}
+	}
+
 }
 
 
@@ -186,6 +228,12 @@ void ABlasterPlayerController::SetMatchCountdownTime(float CountdownTime)
 
 	if (bValidHUD)
 	{
+		//prevent getting negative value ..
+		if (CountdownTime < 0.f)
+		{
+			BlasterHUD->CharacterOverlay->MatchCountdownText->SetText(FText());
+			return;
+		}
 		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
 		int32 Seconds = CountdownTime - Minutes * 60;
 		FString MatchCountdownTimeText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
@@ -193,14 +241,53 @@ void ABlasterPlayerController::SetMatchCountdownTime(float CountdownTime)
 	}
 }
 
+void ABlasterPlayerController::SetAnnouncementCountdownTime(float CountdownTime)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+
+	bool bValidHUD = BlasterHUD &&
+		BlasterHUD->AnnouncementWidget &&
+		BlasterHUD->AnnouncementWidget->WarmupTime;
+
+	if (bValidHUD)
+	{
+		//prevent getting negative value of countdown time..
+		if (CountdownTime < 0.f)
+		{
+			BlasterHUD->AnnouncementWidget->WarmupTime->SetText(FText());
+			return;
+		}
+
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+		FString AnnouncementCountdownTimeText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		BlasterHUD->AnnouncementWidget->WarmupTime->SetText(FText::FromString(AnnouncementCountdownTimeText));
+	}
+}
+
 void ABlasterPlayerController::SetHUDTime()
 {
-	//calculating seconds left in Game..
-	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
+	float TimeLeft = 0.f;
 
+	//calculating time left depending on different match state..
+	if (MatchState == MatchState::WaitingToStart) TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
+	else if (MatchState == MatchState::InProgress) TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
+	else if (MatchState == MatchState::Cooldown)TimeLeft = CooldownTime + WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
+	
+	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
+	
+	
 	if (CountdownInt != SecondsLeft)
 	{
-		SetMatchCountdownTime(MatchTime - GetServerTime());
+		if (MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown )
+		{
+			SetAnnouncementCountdownTime(TimeLeft);
+		}
+
+		if (MatchState == MatchState::InProgress)
+		{
+			SetMatchCountdownTime(TimeLeft);
+		}
 	}
 	CountdownInt = SecondsLeft;
 }
@@ -211,29 +298,56 @@ void ABlasterPlayerController::OnMatchStateSet(FName State)
 
 	if (MatchState == MatchState::InProgress)
 	{
-		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
-		if (BlasterHUD)
-		{
-			//add character overlay only when Match state is in progress state...
-			BlasterHUD->AddCharacterOverlay();
-		}
+		HandleMatchHasStarted();
 
 	}
-
-
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
+	}
 }
 
 void ABlasterPlayerController::OnRep_MatchState()
 {
 	if (MatchState == MatchState::InProgress)
 	{
-		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
-		if (BlasterHUD)
-		{
-			//add character overlay only when Match state is in progress state...
-			BlasterHUD->AddCharacterOverlay();
-		}
+		HandleMatchHasStarted();
 
+	}
+    else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
+	}
+}
+
+void ABlasterPlayerController::HandleMatchHasStarted()
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (BlasterHUD)
+	{
+		//add character overlay only when Match state is in progress state...
+		BlasterHUD->AddCharacterOverlay();
+
+		if (BlasterHUD->AnnouncementWidget)
+		{
+			BlasterHUD->AnnouncementWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+void ABlasterPlayerController::HandleCooldown()
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (BlasterHUD)
+	{
+		//removing character overlay in cool down state..
+		CharacterOverlay->RemoveFromParent();
+		if (BlasterHUD->AnnouncementWidget && BlasterHUD->AnnouncementWidget->AnnouncementText)
+		{
+			BlasterHUD->AnnouncementWidget->SetVisibility(ESlateVisibility::Visible);
+			FString AnnouncementText("Match Restarts in:");
+			BlasterHUD->AnnouncementWidget->AnnouncementText->SetText(FText::FromString(AnnouncementText));
+		}
 	}
 }
 
