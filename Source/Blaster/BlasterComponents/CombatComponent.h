@@ -28,6 +28,8 @@ public:
 
 	void EquipWeapon(class AWeapon* WeaponToEquip);
 
+	void FireButtonPressed(bool bPressed);
+
 	void Reload();
 
 	void InterpFOV(float DeltaTime);
@@ -55,7 +57,7 @@ protected:
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
 
-	void FireButtonPressed(bool bPressed);
+	
 
 	void Fire();
 

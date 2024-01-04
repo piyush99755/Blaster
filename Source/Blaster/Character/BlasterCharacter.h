@@ -34,25 +34,25 @@ public:
 		class UAnimMontage* WeaponFireMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		 UAnimMontage* ReloadMontage;
+		UAnimMontage* ReloadMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		 UAnimMontage* HitReactMontage;
+		UAnimMontage* HitReactMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UAnimMontage* DeathMontage;
 
 	//Player Health variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxHealth = 100.f;
+		float MaxHealth = 100.f;
 
 	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere)
-	float Health = 100.f;
+		float Health = 100.f;
 
 	UPROPERTY()
-	class ABlasterPlayerController* BlasterPlayerController; 
+		class ABlasterPlayerController* BlasterPlayerController;
 
-	
+
 
 
 private:
@@ -62,13 +62,13 @@ private:
 
 	//rep notify
 	UFUNCTION()
-	void OnRep_OverlappingWeapon(class AWeapon* LastWeapon);
+		void OnRep_OverlappingWeapon(class AWeapon* LastWeapon);
 
-	
+
 
 	//create RPC(Remote Procedure Calls)function in intention to call this in client and executed on server
 	UFUNCTION(Server, Reliable)
-	void ServerEquipButtonPressed();
+		void ServerEquipButtonPressed();
 
 	float AO_Yaw;
 
@@ -83,7 +83,7 @@ private:
 	float CameraThreshold = 100.f;
 
 	//variables to implement smooth rotation for simulated proxies..
-	bool bRotateRootBone; 
+	bool bRotateRootBone;
 
 	float TurnThreshold = 0.5f;
 
@@ -95,13 +95,17 @@ private:
 
 	float TimeSinceLastReplicatedMovement;
 
-	bool bEliminated = false; 
+	bool bEliminated = false;
+
+	
+
+
 
 
 
 
 protected:
-	
+
 	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -117,15 +121,17 @@ protected:
 	void FireButtonReleased();
 
 	UFUNCTION()
-	void ReceiveDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+		void ReceiveDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-public:	
-	
+public:
+
 	virtual void Tick(float DeltaTime) override;
 
 	void AimOffset(float DeltaTime);
 
 	void CalculateAO_Pitch();
+
+	void RotateInPlace(float DeltaTime);
 
 	void TurnInPlace(float DeltaTime);
 
@@ -139,13 +145,13 @@ public:
 
 	void HideCameraIfClose();
 
-	
+
 
 	void SimulatedProxiesTurn();
 
 	//inherited function from character class 
 
-	virtual void OnRep_ReplicatedMovement() override; 
+	virtual void OnRep_ReplicatedMovement() override;
 
 	float CalculateSpeed();
 
@@ -159,26 +165,31 @@ public:
 	void Elimination();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastElimination();
+		void MulticastElimination();
 
-	
+
 
 	FTimerHandle ElimTimerHandle;
 
 	UPROPERTY(EditAnywhere)
-	float ElimDelay = 1.5f;
+		float ElimDelay = 1.5f;
 
 	void ElimTimerFinished();
 
 	UFUNCTION(BlueprintCallable)
-	void DeathFinished();
+		void DeathFinished();
+
+	UPROPERTY(Replicated)
+		bool bDisableGameplay = false;
+
 	
-	
+
+
 
 
 public:
 
-	
+
 	void SetOverlappingWeapon(class AWeapon* Weapon);
 
 	void MoveForward(float Value);
@@ -202,20 +213,23 @@ public:
 
 	void ReloadButtonPressed();
 
-	
+
 
 	bool IsAiming();
 
 	AWeapon* GetEquippedWeapon();
 
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
-	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch;  }
+	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
 	FORCEINLINE bool IsEliminated() const { return bEliminated; }
-	FORCEINLINE float GetHealth() const { return Health;}
+	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	FORCEINLINE bool GetDisableGameplay() const { return bDisableGameplay; }
+	FORCEINLINE UCombatComponent* GetCombatComponent() const { return CombatComponent; }
+	
 
 	ECombatState GetCombatState() const;
 

@@ -11,6 +11,7 @@
 #include "Blaster/HUD/Announcement.h"
 #include "Blaster/Gamemode/BlasterGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blaster/BlasterComponents/CombatComponent.h"
 
 
 
@@ -317,6 +318,7 @@ void ABlasterPlayerController::OnRep_MatchState()
     else if (MatchState == MatchState::Cooldown)
 	{
 		HandleCooldown();
+		
 	}
 }
 
@@ -348,6 +350,13 @@ void ABlasterPlayerController::HandleCooldown()
 			FString AnnouncementText("Match Restarts in:");
 			BlasterHUD->AnnouncementWidget->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 		}
+	}
+
+	 BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
+	if (BlasterCharacter && BlasterCharacter->GetCombatComponent())
+	{
+		BlasterCharacter->bDisableGameplay = true;
+		BlasterCharacter->GetCombatComponent()->FireButtonPressed(false);//to prevent firing continously
 	}
 }
 

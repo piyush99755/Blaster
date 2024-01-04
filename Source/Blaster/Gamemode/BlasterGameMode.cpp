@@ -88,7 +88,7 @@ void ABlasterGameMode::Tick(float DeltaTime)
 			StartMatch();
 		}
 	}
-	if (MatchState == MatchState::InProgress)
+	else if (MatchState == MatchState::InProgress)
 	{
 		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
 
@@ -96,6 +96,14 @@ void ABlasterGameMode::Tick(float DeltaTime)
 		{
 			//when countdown time reaches zero , setting match state to cool down 
 			SetMatchState(MatchState::Cooldown);
+		}
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		CountdownTime = CooldownTime + WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CountdownTime <= 0.f)
+		{
+			RestartGame();
 		}
 	}
 }
