@@ -103,10 +103,13 @@ void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
 	UpdateHUDHealth();
-
+	
 	if (HasAuthority())
 	{
+		
+
 		//binding call back 
 		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
 	}

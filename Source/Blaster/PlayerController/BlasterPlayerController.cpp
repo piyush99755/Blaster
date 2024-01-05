@@ -239,6 +239,8 @@ void ABlasterPlayerController::SetMatchCountdownTime(float CountdownTime)
 		int32 Seconds = CountdownTime - Minutes * 60;
 		FString MatchCountdownTimeText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
 		BlasterHUD->CharacterOverlay->MatchCountdownText->SetText(FText::FromString(MatchCountdownTimeText));
+
+		
 	}
 }
 
@@ -328,7 +330,7 @@ void ABlasterPlayerController::HandleMatchHasStarted()
 	if (BlasterHUD)
 	{
 		//add character overlay only when Match state is in progress state...
-		BlasterHUD->AddCharacterOverlay();
+		 BlasterHUD->AddCharacterOverlay();
 
 		if (BlasterHUD->AnnouncementWidget)
 		{
@@ -369,6 +371,7 @@ void ABlasterPlayerController::PollInIt()
 			CharacterOverlay = BlasterHUD->CharacterOverlay;
 			if (CharacterOverlay)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Character overlay exists"));
 				SetHealthHUD(HUDHealth, HUDMaxHealth);
 			}
 		}

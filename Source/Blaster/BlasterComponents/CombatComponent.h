@@ -151,7 +151,11 @@ private:
 	//using TMAP as different type of weapons will be used and ammo for different types of weapon will be different amount
 	TMap<EWeaponType, int32> CarriedAmmoMap; //key, value pair... 
 
+	UPROPERTY(EditAnywhere)
 	int32 StartingARAmmo = 100;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingRocketAmmo = 0.f;
 
 	void InitializeCarriedAmmo();
 
