@@ -15,6 +15,9 @@ public:
 	
 	AProjectile();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		class UProjectileMovementComponent* ProjectileMovementComponent;
+
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
@@ -29,8 +32,7 @@ protected:
 private:
 	
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-		class UProjectileMovementComponent* ProjectileMovementComponent;
+	
 
 	//variables for projectile tracer, while its travelling
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))

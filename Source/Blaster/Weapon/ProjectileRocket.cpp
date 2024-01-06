@@ -11,6 +11,7 @@
 #include "NiagaraComponent.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundAttenuation.h"
+#include "RocketMovementComponent.h"
 
 
 AProjectileRocket::AProjectileRocket()
@@ -18,6 +19,11 @@ AProjectileRocket::AProjectileRocket()
 	RocketMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RocketMesh"));
 	RocketMesh->SetupAttachment(GetRootComponent());
 	RocketMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovementComponent"));
+	RocketMovementComponent->bRotationFollowsVelocity = true;
+	RocketMovementComponent->SetIsReplicated(true);
+
 }
 
 
@@ -72,6 +78,11 @@ void AProjectileRocket::DestroyTimeFinished()
 
 void AProjectileRocket::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (OtherActor == GetOwner())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Self hit"));
+		return;
+	}
 	APawn* FiringPawn = GetInstigator();
 	if (FiringPawn)
 	{
@@ -118,9 +129,9 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
-	if (TrailSystemComponent && TrailSystemComponent->GetSystemInstance())
+	if (TrailSystemComponent && TrailSystemComponent->GetSystemInstanceController())
 	{
-		TrailSystemComponent->GetSystemInstance()->Deactivate();
+		TrailSystemComponent->GetSystemInstanceController()->Deactivate();
 	}
 
 	if (ProjectileLoopComponent && ProjectileLoopComponent->IsPlaying())

@@ -19,6 +19,7 @@ AWeapon::AWeapon()
 
 	//in order for weapon to have replication property set this bool to true..
 	bReplicates = true;
+	SetReplicateMovement(true);
 
 	//constructing weapon mesh 
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));

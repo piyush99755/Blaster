@@ -20,6 +20,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		class UStaticMeshComponent* RocketMesh;
 
+    UPROPERTY(EditAnywhere)
+		class URocketMovementComponent* RocketMovementComponent;
+
 	UPROPERTY(EditAnywhere)
 		class UNiagaraSystem* TrailSystem;
 

@@ -393,7 +393,7 @@ void ABlasterCharacter::MulticastElimination_Implementation()
 	//destroy weapon on elimination
 	if (CombatComponent && CombatComponent->EquippedWeapon)
 	{
-		CombatComponent->EquippedWeapon->Destroy();
+		//CombatComponent->EquippedWeapon->Destroy();
 	}
 }
 
@@ -635,6 +635,10 @@ void ABlasterCharacter::PlayReloadMontage()
 		switch (CombatComponent->EquippedWeapon->GetWeaponType())
 		{
 		case EWeaponType::EWT_AssaultRifle:
+			SectionName = FName("RifleReload");
+			break;
+
+		case EWeaponType::EWT_RocketLauncher:
 			SectionName = FName("RifleReload");
 			break;
 		}
