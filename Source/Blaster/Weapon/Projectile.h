@@ -27,8 +27,7 @@ protected:
 	virtual void Destroyed() override;
 
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* CollisionBox;
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		class UProjectileMovementComponent* ProjectileMovementComponent;
@@ -40,14 +39,19 @@ private:
 	
 	class UParticleSystemComponent* TracerComponent;
 
-	//variables for projectile hit impact particles and sound 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	UParticleSystem* ImpactParticles;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-		class USoundCue* ImpactSound;
+	
 
 public:	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UBoxComponent* CollisionBox;
+
+	//variables for projectile hit impact particles and sound 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UParticleSystem* ImpactParticles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class USoundCue* ImpactSound;
 
 	UPROPERTY(EditAnywhere)
 	float Damage = 20.f;

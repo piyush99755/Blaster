@@ -4,6 +4,13 @@
 #include "ProjectileRocket.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "TimerManager.h"
+#include "Sound/SoundCue.h"
+#include "Components/BoxComponent.h"
+#include "NiagaraComponent.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundAttenuation.h"
 
 
 AProjectileRocket::AProjectileRocket()
@@ -12,6 +19,56 @@ AProjectileRocket::AProjectileRocket()
 	RocketMesh->SetupAttachment(GetRootComponent());
 	RocketMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
+
+
+void AProjectileRocket::BeginPlay()
+{
+	Super::BeginPlay();
+
+	
+	if (!HasAuthority())
+	{
+		//bind call back to component hit event...
+		CollisionBox->OnComponentHit.AddDynamic(this, &AProjectileRocket::OnHit);
+	}
+
+	if (TrailSystem)
+	{
+		//spawning trail system 
+		TrailSystemComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			TrailSystem,
+			GetRootComponent(),
+			FName(),
+			GetActorLocation(),
+			GetActorRotation(),
+			EAttachLocation::KeepWorldPosition,
+			false);
+	}
+
+	if (ProjectileLoopSound && ProjectileLoopAttenuation)
+	{
+		ProjectileLoopComponent = UGameplayStatics::SpawnSoundAttached(ProjectileLoopSound,
+			GetRootComponent(),
+			FName(),
+			GetActorLocation(),
+			EAttachLocation::KeepWorldPosition,
+			false,
+			1.f,
+			1.f,
+			0.f,
+			ProjectileLoopAttenuation,
+			(USoundConcurrency*)nullptr,
+			false
+			);
+	}
+}
+
+void AProjectileRocket::DestroyTimeFinished()
+{
+	Destroy();
+}
+
+
 
 void AProjectileRocket::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -37,5 +94,45 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
 		}
 	}
 
-	Super::OnHit(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
+	//setting timer to delay destroying rocket projectile.. 
+	GetWorldTimerManager().SetTimer(DestroyTimer, this, &AProjectileRocket::DestroyTimeFinished, DestroyTime);
+
+	if (ImpactParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, GetActorTransform());
+	}
+
+	if (ImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
+	}
+
+	if (RocketMesh)
+	{
+		//setting rocket mesh visibility to false after hitting ..
+		RocketMesh->SetVisibility(false);
+	}
+	if (CollisionBox)
+	{
+		//disable collision after hitting 
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	if (TrailSystemComponent && TrailSystemComponent->GetSystemInstance())
+	{
+		TrailSystemComponent->GetSystemInstance()->Deactivate();
+	}
+
+	if (ProjectileLoopComponent && ProjectileLoopComponent->IsPlaying())
+	{
+		//on hit stop playing projectile loop sound..
+		ProjectileLoopComponent->Stop();
+	}
+
 }
+
+void AProjectileRocket::Destroyed()
+{
+}
+
+
