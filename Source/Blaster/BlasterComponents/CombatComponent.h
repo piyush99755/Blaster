@@ -157,6 +157,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	int32 StartingRocketAmmo = 0.f;
 
+	UPROPERTY(EditAnywhere)
+		int32 StartingPistolAmmo = 15;
+
 	void InitializeCarriedAmmo();
 
 	//reloading

@@ -641,6 +641,10 @@ void ABlasterCharacter::PlayReloadMontage()
 		case EWeaponType::EWT_RocketLauncher:
 			SectionName = FName("RifleReload");
 			break;
+
+		case EWeaponType::EWT_Pistol:
+			SectionName = FName("RifleReload");
+			break;
 		}
         AnimInstance->Montage_JumpToSection(SectionName);
 	}
