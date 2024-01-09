@@ -26,5 +26,16 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		 UParticleSystem* BeamParticles;
+
+	UPROPERTY(EditAnywhere)
+		UParticleSystem* FireParticles;
+
+	UPROPERTY(EditAnywhere)
+		class USoundCue* FireSound;
+
+	UPROPERTY(EditAnywhere)
+		USoundCue* HitSound;
+
+
 	
 };

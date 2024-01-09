@@ -15,7 +15,7 @@ class BLASTER_API ABlasterPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-
+	UFUNCTION(NetMulticast, Reliable)
 	void SetHealthHUD(float Health, float MaxHealth);
 
 	//void SetScoreHUD(float Score);

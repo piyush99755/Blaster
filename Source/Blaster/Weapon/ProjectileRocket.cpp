@@ -18,7 +18,7 @@ AProjectileRocket::AProjectileRocket()
 {
 	RocketMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RocketMesh"));
 	RocketMesh->SetupAttachment(GetRootComponent());
-	RocketMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//RocketMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovementComponent"));
 	RocketMovementComponent->bRotationFollowsVelocity = true;

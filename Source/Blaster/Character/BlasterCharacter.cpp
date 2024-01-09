@@ -376,19 +376,35 @@ void ABlasterCharacter::Elimination()
 
 void ABlasterCharacter::MulticastElimination_Implementation()
 {
+	PlayDeathMontage();
+
+
+	//disable character movement..
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	//DeathFinished();
 	if (BlasterPlayerController)
 	{
 		BlasterPlayerController->SetWeaponAmmoHUD(0);
 	}
 
 	bEliminated = true;
-	PlayDeathMontage();
+	
+
+	
 
 	bDisableGameplay = true;
 
 	//disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	
+	
+
+	
+
+	
 
 	//destroy weapon on elimination
 	if (CombatComponent && CombatComponent->EquippedWeapon)
@@ -406,23 +422,28 @@ void ABlasterCharacter::ElimTimerFinished()
 	if (BlasterGameMode)
 	{
 		BlasterGameMode->RequestRespawn(this, Controller);
+		
 	}
 }
 
 void ABlasterCharacter::DeathFinished()
 {
-	bEliminated = true;
-
 	GetMesh()->bPauseAnims = true;
 	GetMesh()->bNoSkeletonUpdate = true;
-	//disable character movement..
-	//GetCharacterMovement()->DisableMovement();
-	//GetCharacterMovement()->StopMovementImmediately();
 
-	//if (BlasterPlayerController)
-	//{
-	//	DisableInput(BlasterPlayerController);
-	//}
+	bEliminated = true;
+
+	if (BlasterPlayerController)
+	{
+		DisableInput(BlasterPlayerController);
+	}
+
+	
+	//disable character movement..
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+
+	
 
 	bDisableGameplay = true;
 
@@ -643,6 +664,10 @@ void ABlasterCharacter::PlayReloadMontage()
 			break;
 
 		case EWeaponType::EWT_Pistol:
+			SectionName = FName("RifleReload");
+			break;
+
+		case EWeaponType::EWT_SubmachineGun:
 			SectionName = FName("RifleReload");
 			break;
 		}

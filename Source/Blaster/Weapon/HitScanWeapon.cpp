@@ -6,6 +6,7 @@
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
 
 void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
@@ -44,7 +45,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(FireHit.GetActor());
 				if (BlasterCharacter && HasAuthority() && InstigatorController)
 				{
-					
+					    //apply damage when its a blaster character.. 
 						UGameplayStatics::ApplyDamage(
 							BlasterCharacter,
 							Damage,
@@ -58,10 +59,17 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 
 				if (ImpactParticles)
 				{
+					//spawn particles where line tracing is hitting 
 					UGameplayStatics::SpawnEmitterAtLocation(World,
 						ImpactParticles,
 						FireHit.ImpactPoint,
 						FireHit.ImpactNormal.Rotation());
+				}
+
+				if (HitSound)
+				{
+					//play sound at location of impact point of line tracing
+					UGameplayStatics::PlaySoundAtLocation(this, HitSound, FireHit.ImpactPoint);
 				}
 
 			}
@@ -79,6 +87,17 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 					Beam->SetVectorParameter(FName("Target"), BeamEnd);
 				}
 
+			}
+
+			//Spawn particles and play sound at location of muzxzle flash socket...
+			if (FireParticles)
+            {
+				UGameplayStatics::SpawnEmitterAtLocation(this, FireParticles, GetActorLocation());
+			}
+
+			if (FireSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 			}
 		};
 

@@ -143,7 +143,7 @@ void ABlasterPlayerController::ClientReportServerTime_Implementation(float TimeO
 	ServerClientDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
 }
 
-void ABlasterPlayerController::SetHealthHUD(float Health, float MaxHealth)
+void ABlasterPlayerController::SetHealthHUD_Implementation(float Health, float MaxHealth)
 {
 	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
 
@@ -331,6 +331,7 @@ void ABlasterPlayerController::HandleMatchHasStarted()
 	{
 		//add character overlay only when Match state is in progress state...
 		 BlasterHUD->AddCharacterOverlay();
+		CharacterOverlay = BlasterHUD->CharacterOverlay;
 
 		if (BlasterHUD->AnnouncementWidget)
 		{
@@ -364,7 +365,7 @@ void ABlasterPlayerController::HandleCooldown()
 
 void ABlasterPlayerController::PollInIt()
 {
-	if (CharacterOverlay == nullptr)
+	if (BlasterHUD->CharacterOverlay == nullptr)
 	{
 		if (BlasterHUD && BlasterHUD->CharacterOverlay)
 		{

@@ -172,7 +172,7 @@ public:
 	FTimerHandle ElimTimerHandle;
 
 	UPROPERTY(EditAnywhere)
-		float ElimDelay = 1.5f;
+		float ElimDelay = 2.06f;
 
 	void ElimTimerFinished();
 
