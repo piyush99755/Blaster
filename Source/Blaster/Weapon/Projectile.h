@@ -23,6 +23,10 @@ public:
 	UFUNCTION()
 		virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	void SpawnTrailSystem();
+
+	void ExplodeDamage();
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -45,6 +49,10 @@ private:
 
 public:	
 
+
+	UPROPERTY(EditAnywhere)
+		class UStaticMeshComponent* ProjectileMesh;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UBoxComponent* CollisionBox;
 
@@ -56,7 +64,23 @@ public:
 		class USoundCue* ImpactSound;
 
 	UPROPERTY(EditAnywhere)
+		class UNiagaraSystem* TrailSystem;
+
+	UPROPERTY()
+		class UNiagaraComponent* TrailSystemComponent;
+
+
+	UPROPERTY(EditAnywhere)
 	float Damage = 20.f;
+
+	FTimerHandle DestroyTimer;
+
+	UPROPERTY(EditAnywhere)
+		float DestroyTime = 3.f;
+
+	void StartDestroyTimer();
+
+	void DestroyTimeFinished();
 
 	
 	

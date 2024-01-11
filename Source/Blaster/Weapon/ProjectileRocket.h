@@ -17,18 +17,11 @@ class BLASTER_API AProjectileRocket : public AProjectile
 		AProjectileRocket();
 public:
 
-	UPROPERTY(EditAnywhere)
-		class UStaticMeshComponent* RocketMesh;
 
     UPROPERTY(EditAnywhere)
 		class URocketMovementComponent* RocketMovementComponent;
 
-	UPROPERTY(EditAnywhere)
-		class UNiagaraSystem* TrailSystem;
-
-	UPROPERTY()
-		class UNiagaraComponent* TrailSystemComponent;
-
+	
 	UPROPERTY(EditAnywhere)
 		class USoundCue* ProjectileLoopSound;
 
@@ -39,12 +32,7 @@ public:
 		class USoundAttenuation* ProjectileLoopAttenuation;
 
 
-	FTimerHandle DestroyTimer;
-
-	UPROPERTY(EditAnywhere)
-		float DestroyTime = 3.f;
-
-	void DestroyTimeFinished();
+	
 
 	//overrding destroyed function from base class..
 
@@ -55,4 +43,5 @@ protected:
 	virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 	virtual void BeginPlay();
+	
 };
