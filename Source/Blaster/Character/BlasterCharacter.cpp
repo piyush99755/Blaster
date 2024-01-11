@@ -411,6 +411,18 @@ void ABlasterCharacter::MulticastElimination_Implementation()
 	{
 		//CombatComponent->EquippedWeapon->Destroy();
 	}
+    
+	//hiding sniper score widget on elimination...
+	bool bHideSniperScope = IsLocallyControlled() 
+		&& CombatComponent 
+		&&CombatComponent->bAiming 
+		&& CombatComponent->EquippedWeapon 
+		&& GetEquippedWeapon()->GetWeaponType() == EWeaponType::EWT_SniperRifle;
+
+	if (bHideSniperScope)
+	{
+		ShowSniperScoreWidget(false);
+	}
 }
 
 
@@ -672,6 +684,10 @@ void ABlasterCharacter::PlayReloadMontage()
 			break;
 
 		case EWeaponType::EWT_Shotgun:
+			SectionName = FName("RifleReload");
+			break;
+
+		case EWeaponType::EWT_SniperRifle:
 			SectionName = FName("RifleReload");
 			break;
 		}

@@ -235,6 +235,9 @@ public:
 
 	FVector GetHitTarget() const;
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowSniperScoreWidget(bool bShowScopeWidget);
+
 	
 
 	
