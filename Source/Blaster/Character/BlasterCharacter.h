@@ -42,6 +42,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UAnimMontage* DeathMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UAnimMontage* ThrowGrenadeMontage;
+
 	//Player Health variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MaxHealth = 100.f;
@@ -143,6 +146,8 @@ public:
 
 	void PlayDeathMontage();
 
+	void PlayThrowGrenadeMontage();
+
 	void HideCameraIfClose();
 
 
@@ -212,6 +217,10 @@ public:
 	void AimButtonReleased();
 
 	void ReloadButtonPressed();
+
+	void ThrowGrenadeButtonPressed();
+
+	
 
 
 

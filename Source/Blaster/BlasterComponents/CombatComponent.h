@@ -76,6 +76,15 @@ protected:
 
 	void SetHUDCrosshairs(float DeltaTime);
 
+	void ThrowGrenade();
+
+	UFUNCTION(Server, Reliable)
+	void ServerThrowGrenade();
+
+	UFUNCTION(BlueprintCallable)
+		void FinishThrowGrenade();
+
+
 private:
 
 	

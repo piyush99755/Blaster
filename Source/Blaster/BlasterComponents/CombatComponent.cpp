@@ -163,6 +163,39 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 
 }
 
+void UCombatComponent::ThrowGrenade()
+{
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
+
+	CombatState = ECombatState::ECS_ThrowingGrenade;
+	
+
+	if (Character)
+	{
+		Character->PlayThrowGrenadeMontage();
+	}
+
+	//checks to make sure montage does not play twice... F
+	if (Character && !Character->HasAuthority())
+	{
+		ServerThrowGrenade();
+	}
+}
+void UCombatComponent::FinishThrowGrenade()
+{
+	CombatState = ECombatState::ECS_Unoccupied;
+}
+//server RPC
+void UCombatComponent::ServerThrowGrenade_Implementation()
+{
+	CombatState = ECombatState::ECS_ThrowingGrenade;
+
+	if (Character)
+	{
+		Character->PlayThrowGrenadeMontage();
+	}
+}
+
 bool UCombatComponent::CanFire()
 {
 	if(EquippedWeapon == nullptr) return false;
@@ -233,6 +266,8 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	if (Character == nullptr || WeaponToEquip == nullptr) return;
 
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
+
 	if (EquippedWeapon)
 	{
 		EquippedWeapon->Dropped();
@@ -290,7 +325,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 void UCombatComponent::Reload()
 {
-	if (CarriedAmmo > 0 && CombatState != ECombatState::ECS_Reloading)
+	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		ServerReload();
 	}
@@ -320,6 +355,12 @@ void UCombatComponent::OnRep_CombatState()
 			
 		}
 		break;
+
+	case ECombatState::ECS_ThrowingGrenade:
+		if (Character && (!Character->IsLocallyControlled()))
+		{
+			Character->PlayThrowGrenadeMontage();
+		}
 	}
 }
 
