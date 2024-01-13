@@ -156,6 +156,7 @@ public:
 
 	void AddAmmo(int32 AmmoToAdd);
 
+	void EnableCustomDepth(bool bEnable);
 
 
 };
