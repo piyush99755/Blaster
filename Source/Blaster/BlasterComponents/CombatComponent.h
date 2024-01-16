@@ -28,6 +28,18 @@ public:
 
 	void EquipWeapon(class AWeapon* WeaponToEquip);
 
+	void ReloadEmptyWeapon();
+
+	void PlayWeaponEquipSound();
+
+	void UpdateCarriedAmmo();
+
+	void AttachActorToRightHand(AActor* ActorToAttach);
+
+	void AttachActorToLeftHand(AActor* ActorToAttach);
+
+	void DropEquipWeapon();
+
 	void FireButtonPressed(bool bPressed);
 
 	void Reload();
