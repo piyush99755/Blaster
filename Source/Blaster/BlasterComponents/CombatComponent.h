@@ -50,6 +50,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
 
+	FORCEINLINE int32 GetGrenades() const { return Grenades; }
+
 
 
 	
@@ -95,6 +97,17 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		void FinishThrowGrenade();
+
+	UFUNCTION(BlueprintCallable)
+		void LaunchGrenade();
+
+
+	UFUNCTION(Server, Reliable)
+		void ServerLaunchGrenade(const FVector_NetQuantize& Target);
+
+	void ShowAttachedGrenade(bool bShowGrenade);
+
+	
 
 
 private:
@@ -193,6 +206,19 @@ private:
 	UPROPERTY(EditAnywhere)
 		int32 StartingGrenadeLauncherAmmo = 5;
 
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class AProjectile> GrenadeClass;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Grenades)
+	int32 Grenades = 5;
+
+	UPROPERTY(EditAnywhere)
+	int32 MaxGrenades = 20;
+
+	UFUNCTION()
+	void OnRep_Grenades();
+
+	void UpdateGrenades();
 
 
 	void InitializeCarriedAmmo();

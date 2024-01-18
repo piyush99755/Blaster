@@ -189,6 +189,8 @@ void ABlasterPlayerController::SetHealthHUD_Implementation(float Health, float M
 		
 }*/
 
+
+
 void ABlasterPlayerController::SetWeaponAmmoHUD(int32 Ammo)
 {
 	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
@@ -216,6 +218,26 @@ void ABlasterPlayerController::SetCarriedAmmoHUD(int32 Ammo)
 	{
 		FString CarriedAmmoText = FString::Printf(TEXT("%d"), Ammo);
 		BlasterHUD->CharacterOverlay->CarriedAmmoAmount->SetText(FText::FromString(CarriedAmmoText));
+	}
+}
+
+void ABlasterPlayerController::SetGrenadeAmountHUD(int32 Grenades)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+
+	bool bValidHUD = BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->GrenadeAmount;
+
+	if (bValidHUD)
+	{
+		FString GrenadeAmountText = FString::Printf(TEXT("%d"), Grenades);
+		BlasterHUD->CharacterOverlay->GrenadeAmount->SetText(FText::FromString(GrenadeAmountText));
+	}
+
+	else
+	{
+		HUDGrenade = Grenades;
 	}
 }
 
@@ -372,8 +394,15 @@ void ABlasterPlayerController::PollInIt()
 			CharacterOverlay = BlasterHUD->CharacterOverlay;
 			if (CharacterOverlay)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Character overlay exists"));
+				
 				SetHealthHUD(HUDHealth, HUDMaxHealth);
+
+				 BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
+				if (BlasterCharacter->GetCombatComponent())
+				{
+					SetGrenadeAmountHUD(BlasterCharacter->GetCombatComponent()->GetGrenades());
+				}
+				
 			}
 		}
 	}

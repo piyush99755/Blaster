@@ -31,6 +31,9 @@ public:
 		class UCombatComponent* CombatComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UStaticMeshComponent* AttachedGrenade;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UAnimMontage* WeaponFireMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -238,6 +241,7 @@ public:
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 	FORCEINLINE bool GetDisableGameplay() const { return bDisableGameplay; }
 	FORCEINLINE UCombatComponent* GetCombatComponent() const { return CombatComponent; }
+	FORCEINLINE UStaticMeshComponent* GetGrenadeMesh() const { return AttachedGrenade; }
 	
 
 	ECombatState GetCombatState() const;

@@ -24,6 +24,8 @@ public:
 
 	void SetCarriedAmmoHUD(int32 Ammo);
 
+	void SetGrenadeAmountHUD(int32 Grenades);
+
 	void SetMatchCountdownTime(float CountdownTime);
 
 	void SetAnnouncementCountdownTime(float CountdownTime);
@@ -81,6 +83,8 @@ public:
 	float HUDHealth;
 
 	float HUDMaxHealth;
+
+	int32 HUDGrenade;
 
 protected:
 

@@ -45,6 +45,10 @@ ABlasterCharacter::ABlasterCharacter()
 	//actor component class does not need to register variable for replication.. they itself are replicated
 	CombatComponent->SetIsReplicated(true);
 
+	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Attached Grenade"));
+	AttachedGrenade->SetupAttachment(GetMesh(), FName("GrenadeSocket"));
+	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 
 	bUseControllerRotationYaw = false;
 	//character orient towards movement
@@ -108,11 +112,11 @@ void ABlasterCharacter::BeginPlay()
 	
 	if (HasAuthority())
 	{
-		
-
-		//binding call back 
+	    //binding call back 
 		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
 	}
+
+	AttachedGrenade->SetVisibility(false);
 	
 	
 }
