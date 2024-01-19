@@ -232,6 +232,19 @@ void UCombatComponent::ShowAttachedGrenade(bool bShowGrenade)
 		Character->GetGrenadeMesh()->SetVisibility(bShowGrenade);
 	}
 }
+void UCombatComponent::PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount)
+{
+	if (CarriedAmmoMap.Contains(WeaponType))
+	{
+		CarriedAmmoMap[WeaponType] = FMath::Clamp(CarriedAmmo + AmmoAmount, 0, MaxCarriedAmmo);
+		UpdateCarriedAmmo();
+	}
+
+	if (EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == WeaponType)
+	{
+		Reload();
+	}
+}
 //server RPC
 void UCombatComponent::ServerThrowGrenade_Implementation()
 {
@@ -277,7 +290,12 @@ void UCombatComponent::SetAiming(bool bIsAiming)
 {
 	if (Character == nullptr || EquippedWeapon == nullptr) return;
 	bAiming = bIsAiming;
-	ServerSetAiming(bAiming);
+
+	if (Character && !Character->IsLocallyControlled())
+	{
+		ServerSetAiming(bAiming);
+	}
+	
 
 	if (Character)
 	{

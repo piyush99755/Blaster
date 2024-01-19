@@ -52,6 +52,8 @@ public:
 
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }
 
+	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
+
 
 
 	
@@ -106,6 +108,8 @@ protected:
 		void ServerLaunchGrenade(const FVector_NetQuantize& Target);
 
 	void ShowAttachedGrenade(bool bShowGrenade);
+
+	
 
 	
 
@@ -214,6 +218,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	int32 MaxGrenades = 20;
+
+	UPROPERTY(EditAnywhere)
+		int32 MaxCarriedAmmo = 999;
 
 	UFUNCTION()
 	void OnRep_Grenades();
