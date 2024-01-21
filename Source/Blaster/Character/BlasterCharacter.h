@@ -31,6 +31,9 @@ public:
 		class UCombatComponent* CombatComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UBuffComponent* BuffComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UStaticMeshComponent* AttachedGrenade;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

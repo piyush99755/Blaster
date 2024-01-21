@@ -71,5 +71,7 @@ void APickup::Destroyed()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
 	}
+
+	
 }
 
