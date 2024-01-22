@@ -18,6 +18,8 @@ public:
 
 	friend class ABlasterCharacter;
 
+
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -27,11 +29,24 @@ private:
 	UPROPERTY()
 	class ABlasterCharacter* Character;
 
+	//heal buff variables
 	bool bHealing = false;
 
 	float HealingRate = 0.f;
 
 	float AmountToHeal = 0.f;
+
+	//speed buff variables
+
+	FTimerHandle SpeedBuffTimer;
+
+	void ResetSpeeds();
+
+	float SpeedBuffTime = 30.f;
+
+	float InitialBaseSpeed;
+
+	float InitialCrouchSpeed; 
 
 public:	
 	
@@ -40,4 +55,12 @@ public:
 	void Heal(float HealingAmount, float HealingTime);
 
 	void HealRampUp(float DeltaTime);
+
+	void BuffSpeed(float BaseSpeedBuff, float CrouchSpeedBuff, float BuffTime);
+
+	void SetInitialSpeeds(float BaseSpeed, float CrouchSpeed);
+
+	//multicast RPC to takecare of client side and syncing server and client with each other 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastBuffSpeed(float BaseSpeed, float CrouchSpeed);
 };
