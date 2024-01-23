@@ -70,7 +70,7 @@ void APickup::Tick(float DeltaTime)
 
 void APickup::Destroyed()
 {
-	Super::Destroyed();
+	
 
 	if (PickupSound)
 	{
@@ -82,6 +82,7 @@ void APickup::Destroyed()
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, PickupEffect, GetActorLocation(), GetActorRotation());
 	}
 
+	Super::Destroyed();
 	
 }
 

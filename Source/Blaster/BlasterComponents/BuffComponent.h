@@ -48,6 +48,14 @@ private:
 
 	float InitialCrouchSpeed; 
 
+	//jump buff variable
+
+	FTimerHandle JumpBuffTimer;
+
+	void ResetJump();
+
+	float InitialJumpVelocity;
+
 public:	
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -58,9 +66,16 @@ public:
 
 	void BuffSpeed(float BaseSpeedBuff, float CrouchSpeedBuff, float BuffTime);
 
+	void BuffJump(float BuffJumpVelocity, float BuffTime);
+
 	void SetInitialSpeeds(float BaseSpeed, float CrouchSpeed);
+
+	void SetInitialJumpVelocity(float JumpVelocity);
 
 	//multicast RPC to takecare of client side and syncing server and client with each other 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastBuffSpeed(float BaseSpeed, float CrouchSpeed);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastBuffJump(float JumpVelocity);
 };
