@@ -128,9 +128,13 @@ void ABlasterCharacter::BeginPlay()
 	{
 	    //binding call back 
 		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
+		UpdateHUDHealth();
 	}
-
-	AttachedGrenade->SetVisibility(false);
+	if (AttachedGrenade)
+	{
+		AttachedGrenade->SetVisibility(false);
+	}
+	
 	
 	
 }
@@ -376,6 +380,8 @@ void ABlasterCharacter::OnRep_Health(float LastHealth)
 	
 }
 
+
+
 void ABlasterCharacter::UpdateHUDHealth()
 {
 	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
@@ -384,6 +390,8 @@ void ABlasterCharacter::UpdateHUDHealth()
 		BlasterPlayerController->SetHealthHUD(Health, MaxHealth);
 	}
 }
+
+
 
 void ABlasterCharacter::Elimination()
 {

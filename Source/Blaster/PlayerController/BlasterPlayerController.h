@@ -18,6 +18,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void SetHealthHUD(float Health, float MaxHealth);
 
+	
+
 	//void SetScoreHUD(float Score);
 
 	void SetWeaponAmmoHUD(int32 Ammo);
@@ -82,9 +84,13 @@ public:
 
 	float HUDHealth;
 
+	bool bInitializeHealth = false;
+
 	float HUDMaxHealth;
 
 	int32 HUDGrenade;
+
+	bool bInitializeGrenades = false;
 
 protected:
 

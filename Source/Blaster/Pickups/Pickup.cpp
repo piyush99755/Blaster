@@ -45,9 +45,10 @@ void APickup::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//setting timer to stop binding overlap events on pickup immediately
 	if (HasAuthority())
 	{
-		OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &APickup::OnSphereOverlap);
+		GetWorldTimerManager().SetTimer(BindOverlapTimer, this, &APickup::BindOverlapTimeStart, BindOverlapTime);
 	}
 	
 	
@@ -55,6 +56,12 @@ void APickup::BeginPlay()
 
 void APickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+
+}
+
+void APickup::BindOverlapTimeStart()
+{
+	OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &APickup::OnSphereOverlap);
 }
 
 void APickup::Tick(float DeltaTime)

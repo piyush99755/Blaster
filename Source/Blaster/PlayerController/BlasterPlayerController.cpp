@@ -167,7 +167,7 @@ void ABlasterPlayerController::SetHealthHUD_Implementation(float Health, float M
 	else
 	{
 		//when bValidHUD fails, these member variables will initialize value of health and max health in character overlay..
-		bInitializeCharacterOverlay = true;
+		bInitializeHealth = true;
 		HUDHealth = Health;
 		HUDMaxHealth = MaxHealth;
 	}
@@ -188,6 +188,9 @@ void ABlasterPlayerController::SetHealthHUD_Implementation(float Health, float M
 	}
 		
 }*/
+
+
+
 
 
 
@@ -395,7 +398,7 @@ void ABlasterPlayerController::PollInIt()
 			if (CharacterOverlay)
 			{
 				
-				SetHealthHUD(HUDHealth, HUDMaxHealth);
+				if(bInitializeHealth) SetHealthHUD(HUDHealth, HUDMaxHealth);
 
 				 BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
 				if (BlasterCharacter->GetCombatComponent())

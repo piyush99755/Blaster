@@ -58,6 +58,9 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere)
 		float Health = 100.f;
 
+	
+	
+
 	UPROPERTY()
 		class ABlasterPlayerController* BlasterPlayerController;
 
@@ -170,7 +173,11 @@ public:
 	UFUNCTION()
 		void OnRep_Health(float LastHealth);
 
+	
+
 	void UpdateHUDHealth();
+
+	
 
 	//variables and function for eliminate player on death 
 	void Elimination();
