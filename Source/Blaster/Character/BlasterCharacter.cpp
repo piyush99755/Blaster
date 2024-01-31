@@ -19,6 +19,7 @@
 #include "Blaster/Gamemode/BlasterGameMode.h"
 #include "TimerManager.h"
 #include "Blaster/Weapon/WeaponTypes.h"
+#include "Kismet/GameplayStatics.h"
 
 
 
@@ -121,6 +122,9 @@ void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SpawnDefaultWeapon();
+
+	UpdateAmmoHUD();
 	
 	UpdateHUDHealth();
 	
@@ -391,11 +395,25 @@ void ABlasterCharacter::UpdateHUDHealth()
 	}
 }
 
+void ABlasterCharacter::UpdateAmmoHUD()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController && CombatComponent && CombatComponent->EquippedWeapon)
+	{
+		BlasterPlayerController->SetWeaponAmmoHUD(CombatComponent->CarriedAmmo);
+		BlasterPlayerController->SetCarriedAmmoHUD(CombatComponent->EquippedWeapon->GetAmmo());
+	}
+}
+
 
 
 void ABlasterCharacter::Elimination()
 {
-	if (CombatComponent && CombatComponent->EquippedWeapon)
+	if (CombatComponent && CombatComponent->EquippedWeapon && CombatComponent->EquippedWeapon->bWeaponDestroy)
+	{
+		CombatComponent->EquippedWeapon->Destroy();
+	}
+	else
 	{
 		CombatComponent->EquippedWeapon->Dropped();
 	}
@@ -530,7 +548,22 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 
 	}
 
+}
+
+void ABlasterCharacter::SpawnDefaultWeapon()
+{
+	ABlasterGameMode* BlasterGameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	UWorld* World = GetWorld();
+	if (BlasterGameMode && World && DefaultWeaponClass && !bEliminated)
+	{
+		AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
+		StartingWeapon->bWeaponDestroy = true;
+		if (CombatComponent)
+		{
+			CombatComponent->EquipWeapon(StartingWeapon);
+		}
 	}
+}
 	
 	
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)

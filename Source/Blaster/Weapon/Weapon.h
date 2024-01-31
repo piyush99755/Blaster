@@ -49,6 +49,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bAutomatic = true;
 
+	bool bWeaponDestroy = false;
+
 	
 
 protected:

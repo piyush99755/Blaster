@@ -29,7 +29,7 @@ APickup::APickup()
 	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pickup Mesh"));
 	PickupMesh->SetupAttachment(OverlapSphere);
 	PickupMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PickupMesh->SetRelativeScale3D(FVector(5.f, 5.f, 5.f));
+	PickupMesh->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
 	PickupMesh->SetRenderCustomDepth(true);
 	PickupMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_PURPLE);
 

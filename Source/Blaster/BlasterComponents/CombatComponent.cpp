@@ -328,6 +328,9 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	{
 		EquippedWeapon->SetWeaponStatus(EWeaponState::EWS_Equipped);
 		AttachActorToRightHand(EquippedWeapon);
+		EquippedWeapon->SetHUDAmmo();
+		UpdateCarriedAmmo();
+		ReloadEmptyWeapon();
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
 		PlayWeaponEquipSound();
@@ -350,8 +353,13 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 	//setting weapon owner as character
 	EquippedWeapon->SetOwner(Character);
+	
+	
 	EquippedWeapon->SetHUDAmmo();
 	UpdateCarriedAmmo();
+	
+	
+	
 	PlayWeaponEquipSound();
     ReloadEmptyWeapon();
 
@@ -434,9 +442,10 @@ void UCombatComponent::DropEquipWeapon()
 
 void UCombatComponent::Reload()
 {
-	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
+	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied )
 	{
 		ServerReload();
+		
 	}
 }
 
@@ -446,6 +455,7 @@ void UCombatComponent::ServerReload_Implementation()
 
 	CombatState = ECombatState::ECS_Reloading;
 	HandleReload();
+	
 
 }
 

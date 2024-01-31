@@ -58,11 +58,12 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere)
 		float Health = 100.f;
 
-	
-	
-
 	UPROPERTY()
 		class ABlasterPlayerController* BlasterPlayerController;
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<AWeapon> DefaultWeaponClass;
+
 
 
 
@@ -135,6 +136,8 @@ protected:
 	UFUNCTION()
 		void ReceiveDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
+	void SpawnDefaultWeapon();
+
 public:
 
 	virtual void Tick(float DeltaTime) override;
@@ -176,6 +179,8 @@ public:
 	
 
 	void UpdateHUDHealth();
+
+	void UpdateAmmoHUD();
 
 	
 

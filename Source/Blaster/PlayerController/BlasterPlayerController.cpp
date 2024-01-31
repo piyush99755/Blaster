@@ -207,6 +207,12 @@ void ABlasterPlayerController::SetWeaponAmmoHUD(int32 Ammo)
 		FString WeaponAmmoText = FString::Printf(TEXT("%d"), Ammo);
 		BlasterHUD->CharacterOverlay->WeaponAmmoAmount->SetText(FText::FromString(WeaponAmmoText));
 	}
+
+	else
+	{
+		bInitializeWeaponAmmo = true;
+		HUDWeaponAmmo = Ammo;
+	}
 }
 
 void ABlasterPlayerController::SetCarriedAmmoHUD(int32 Ammo)
@@ -221,6 +227,11 @@ void ABlasterPlayerController::SetCarriedAmmoHUD(int32 Ammo)
 	{
 		FString CarriedAmmoText = FString::Printf(TEXT("%d"), Ammo);
 		BlasterHUD->CharacterOverlay->CarriedAmmoAmount->SetText(FText::FromString(CarriedAmmoText));
+	}
+	else
+	{
+		bInitializeCarriedAmmo = true;
+		HUDCarriedAmmo = Ammo;
 	}
 }
 
@@ -357,6 +368,7 @@ void ABlasterPlayerController::HandleMatchHasStarted()
 		//add character overlay only when Match state is in progress state...
 		 BlasterHUD->AddCharacterOverlay();
 		CharacterOverlay = BlasterHUD->CharacterOverlay;
+		
 
 		if (BlasterHUD->AnnouncementWidget)
 		{
@@ -399,6 +411,13 @@ void ABlasterPlayerController::PollInIt()
 			{
 				
 				if(bInitializeHealth) SetHealthHUD(HUDHealth, HUDMaxHealth);
+				//ABlasterPlayerController* ThisController = Cast<ABlasterPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+				//if (ThisController)
+				//{
+				if (bInitializeCarriedAmmo) SetCarriedAmmoHUD(HUDCarriedAmmo);
+				if (bInitializeWeaponAmmo) SetWeaponAmmoHUD(HUDWeaponAmmo);
+				//}
+				
 
 				 BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
 				if (BlasterCharacter->GetCombatComponent())

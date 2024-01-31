@@ -21,9 +21,10 @@ public:
 	
 
 	//void SetScoreHUD(float Score);
-
+	
 	void SetWeaponAmmoHUD(int32 Ammo);
 
+	
 	void SetCarriedAmmoHUD(int32 Ammo);
 
 	void SetGrenadeAmountHUD(int32 Grenades);
@@ -91,6 +92,14 @@ public:
 	int32 HUDGrenade;
 
 	bool bInitializeGrenades = false;
+
+	int32 HUDWeaponAmmo;
+
+	bool bInitializeWeaponAmmo = false;
+
+	int32 HUDCarriedAmmo;
+
+	bool bInitializeCarriedAmmo = false;
 
 protected:
 
