@@ -28,15 +28,21 @@ public:
 
 	void EquipWeapon(class AWeapon* WeaponToEquip);
 
+	void SwapWeapons();
+
+	bool ShouldSwapWeapons();
+
 	void ReloadEmptyWeapon();
 
-	void PlayWeaponEquipSound();
+	void PlayWeaponEquipSound(AWeapon* WeaponToEquip);
 
 	void UpdateCarriedAmmo();
 
 	void AttachActorToRightHand(AActor* ActorToAttach);
 
 	void AttachActorToLeftHand(AActor* ActorToAttach);
+
+	void AttachActorToBackpack(AActor* ActorToAttach);
 
 	void DropEquipWeapon();
 
@@ -72,6 +78,13 @@ protected:
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+
+	UFUNCTION()
+		void OnRep_EquippedSecondaryWeapon();
+
+	void EquipPrimaryWeapon(AWeapon* WeaponToEquip);
+
+	void EquipSecondaryWeapon(AWeapon* WeaponToEquip);
 
 	
 
@@ -126,6 +139,10 @@ private:
 	//make it Replicated to replicate EquippedWeapon variable
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	class AWeapon* EquippedWeapon;
+
+	//secondary weapon 
+	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
+		AWeapon* EquippedSecondaryWeapon;
 
 	UPROPERTY(Replicated)
 	bool bAiming;

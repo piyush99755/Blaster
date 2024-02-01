@@ -190,8 +190,9 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastElimination();
 
+	void DropOrDestroyWeapons();
 
-
+	void DropOrDestroyWeapon(AWeapon* Weapon);
 	FTimerHandle ElimTimerHandle;
 
 	UPROPERTY(EditAnywhere)

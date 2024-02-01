@@ -334,16 +334,8 @@ void ABlasterCharacter::EquipButtonPressed()
 	
 	if (CombatComponent)
 	{
-		//if equip button pressed by server , simply call equipweapon function 
-		if (HasAuthority())
-		{
-			CombatComponent->EquipWeapon(OverlappingWeapon);
-		}
-		else
-		{
-			//when equip button pressed by client, call RPC function
-			ServerEquipButtonPressed();
-		}
+		//calling server RPC which works on both server and client...
+		ServerEquipButtonPressed();
 		
 	}
 }
@@ -354,7 +346,17 @@ void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 {
 	if (CombatComponent)
 	{
-		CombatComponent->EquipWeapon(OverlappingWeapon);
+		//when weapon is still avaialable to equip and hasvalue of overlapping weapon, calling equip weapon()
+		if (OverlappingWeapon)
+		{
+			CombatComponent->EquipWeapon(OverlappingWeapon);
+		}
+		//when both weapons are attached to the charactermesh, calling swap weapons on press E key.
+		else if (CombatComponent->ShouldSwapWeapons())
+		{
+			CombatComponent->SwapWeapons();
+		}
+		
 	}
 }
 
@@ -409,17 +411,48 @@ void ABlasterCharacter::UpdateAmmoHUD()
 
 void ABlasterCharacter::Elimination()
 {
-	if (CombatComponent && CombatComponent->EquippedWeapon && CombatComponent->EquippedWeapon->bWeaponDestroy)
-	{
-		CombatComponent->EquippedWeapon->Destroy();
-	}
-	else
-	{
-		CombatComponent->EquippedWeapon->Dropped();
-	}
+	DropOrDestroyWeapons();
 	MulticastElimination();
 
 	GetWorldTimerManager().SetTimer(ElimTimerHandle,this,  &ABlasterCharacter::ElimTimerFinished, ElimDelay);
+
+}
+
+
+
+
+void ABlasterCharacter::DropOrDestroyWeapon(AWeapon* Weapon)
+{
+	//drop or destroy weapon on elimination of player
+	if (Weapon == nullptr) return;
+	{
+		if (Weapon->bWeaponDestroy)
+		{
+			Weapon->Destroy();
+		}
+		else
+		{
+			Weapon->Dropped();
+		}
+	}
+}
+
+void ABlasterCharacter::DropOrDestroyWeapons()
+{
+	if (CombatComponent)
+	{
+		//if its primary weapon same as default spawn weapon , destroy it 
+		//if its secondary weapon , drop it
+		if (CombatComponent->EquippedWeapon)
+		{
+			DropOrDestroyWeapon(CombatComponent->EquippedWeapon);
+		}
+		if (CombatComponent->EquippedSecondaryWeapon)
+		{
+			DropOrDestroyWeapon(CombatComponent->EquippedSecondaryWeapon);
+
+		}
+	}
 
 }
 
@@ -475,6 +508,7 @@ void ABlasterCharacter::MulticastElimination_Implementation()
 		ShowSniperScoreWidget(false);
 	}
 }
+
 
 
 

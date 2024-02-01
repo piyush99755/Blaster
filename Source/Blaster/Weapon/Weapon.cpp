@@ -130,70 +130,96 @@ void AWeapon::SetWeaponStatus(EWeaponState State)
 {
 	WeaponState = State;
 
+	OnWeaponStateSet();
+}
+
+void AWeapon::OnWeaponStateSet()
+{
+
 	//define properties of different states of weapon
 	switch (WeaponState)
 	{
 	case EWeaponState::EWS_Equipped:
-		ShowPickupWidget(false);
-		WeaponSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		OnEquipped();
+		break;
 
-		//setting up weapon properties once weapon is equipped 
-		WeaponMesh->SetSimulatePhysics(false);
-		WeaponMesh->SetEnableGravity(false);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		if (WeaponType == EWeaponType::EWT_SubmachineGun)
-		{
-			WeaponMesh->SetEnableGravity(true);
-			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-		}
-		EnableCustomDepth(false);
-        break;
+	case EWeaponState::EWS_EquippedSecondary:
+		OnEquippedSecondary();
+		break;
 
 	case EWeaponState::EWS_Dropped:
-		if (HasAuthority())
-		{
-			WeaponSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		}
-		//setting simulate physcis and gravity to true when weapon is in dropped state..
-		WeaponMesh->SetSimulatePhysics(true);
-		WeaponMesh->SetEnableGravity(true);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-		WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
-		WeaponMesh->MarkRenderStateDirty();
-		EnableCustomDepth(true);
+		OnDropped();
+		break;
 	}
 
+}
+
+void AWeapon::OnEquipped()
+{
+	ShowPickupWidget(false);
+	WeaponSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	//setting up weapon properties once weapon is equipped 
+	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetEnableGravity(false);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (WeaponType == EWeaponType::EWT_SubmachineGun)
+	{
+		WeaponMesh->SetEnableGravity(true);
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+	}
+	EnableCustomDepth(false);
 }
 
 void AWeapon::OnRep_WeaponState()
 {
-	switch (WeaponState)
-	{
-	case EWeaponState::EWS_Equipped:
-		ShowPickupWidget(false);
-		EnableCustomDepth(false);
-		break;
+	OnWeaponStateSet();
+}
 
-	case EWeaponState::EWS_Dropped:
-		if (HasAuthority())
-		{
-			WeaponSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		}
-		//setting simulate physcis and gravity to true when weapon is in dropped state..
-		WeaponMesh->SetSimulatePhysics(true);
+void AWeapon::OnEquippedSecondary()
+{
+	ShowPickupWidget(false);
+	WeaponSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	//setting up weapon properties once weapon is equipped 
+	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetEnableGravity(false);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (WeaponType == EWeaponType::EWT_SubmachineGun)
+	{
 		WeaponMesh->SetEnableGravity(true);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
-		WeaponMesh->MarkRenderStateDirty();
-		EnableCustomDepth(true);
+		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
 	}
+	EnableCustomDepth(true);
 	
+	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_TAN);
+	WeaponMesh->MarkRenderStateDirty();
 }
+
+void AWeapon::OnDropped()
+{
+	if (HasAuthority())
+	{
+		WeaponSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	//setting simulate physcis and gravity to true when weapon is in dropped state..
+	WeaponMesh->SetSimulatePhysics(true);
+	WeaponMesh->SetEnableGravity(true);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+	WeaponMesh->MarkRenderStateDirty();
+	EnableCustomDepth(true);
+}
+
+
 
 void AWeapon::Dropped()
 {
@@ -300,7 +326,12 @@ void AWeapon::OnRep_Owner()
 	}
 	else
 	{
-		SetHUDAmmo();
+		BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(Owner) : BlasterOwnerCharacter;
+		if (BlasterOwnerCharacter && BlasterOwnerCharacter->GetEquippedWeapon() && BlasterOwnerCharacter->GetEquippedWeapon() == this)
+		{
+			SetHUDAmmo();
+		}
+		
 	}
 	
 	

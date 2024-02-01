@@ -12,6 +12,7 @@ enum class EWeaponState : uint8
 {
 	EWS_Initial UMETA(DisplayName = "Initial"),
 	EWS_Equipped UMETA(DisplayName = "Equipped"),
+	EWS_EquippedSecondary UMETA(DisplayName = "EquippedSecondary"),
 	EWS_Dropped UMETA(DisplayName = "Dropped"),
 
 	EWS_MAX UMETA(DisplayName = "DefaultMAX")
@@ -147,6 +148,15 @@ public:
 
 	
 	void SetWeaponStatus(EWeaponState State);
+
+	void OnWeaponStateSet();
+
+	void OnEquipped();
+
+
+	void OnEquippedSecondary();
+
+	void OnDropped();
 
 	virtual void Fire(const FVector& HitTarget);
 
