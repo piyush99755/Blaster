@@ -15,10 +15,10 @@ class BLASTER_API ABlasterPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+
+	//health and ammo HUD functions
 	UFUNCTION(NetMulticast, Reliable)
 	void SetHealthHUD(float Health, float MaxHealth);
-
-	
 
 	//void SetScoreHUD(float Score);
 	
@@ -27,8 +27,33 @@ public:
 	
 	void SetCarriedAmmoHUD(int32 Ammo);
 
-	void SetGrenadeAmountHUD(int32 Grenades);
+     void SetGrenadeAmountHUD(int32 Grenades);
 
+	 void PollInIt();
+
+	 bool bInitializeCharacterOverlay = false;
+
+	 float HUDHealth;
+
+	 bool bInitializeHealth = false;
+
+	 float HUDMaxHealth;
+
+	 int32 HUDGrenade;
+
+	 bool bInitializeGrenades = false;
+
+	 int32 HUDWeaponAmmo;
+
+	 bool bInitializeWeaponAmmo = false;
+
+	 int32 HUDCarriedAmmo;
+
+	 bool bInitializeCarriedAmmo = false;
+
+
+
+	 //match state functions
 	void SetMatchCountdownTime(float CountdownTime);
 
 	void SetAnnouncementCountdownTime(float CountdownTime);
@@ -40,20 +65,6 @@ public:
 	void HandleMatchHasStarted();
 
 	void HandleCooldown();
-	
-
-
-	UPROPERTY()
-	class ABlasterHUD* BlasterHUD;
-
-	UPROPERTY()
-	class ABlasterCharacter* BlasterCharacter;
-
-	UPROPERTY()
-		class ABlasterGameMode* BlasterGameMode;
-
-	UPROPERTY()
-		class UCharacterOverlay* CharacterOverlay;
 
 	float MatchTime = 0.f;
 
@@ -69,37 +80,54 @@ public:
 
 	//every 5 seconds synced time between server and client..
 	UPROPERTY(EditAnywhere)
-	float TimeSyncedFrequency = 5.f;
+		float TimeSyncedFrequency = 5.f;
 
 	float TimeSyncedRunningTime = 0.f;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
-	FName MatchState;
+		FName MatchState;
 
 	UFUNCTION()
-	void OnRep_MatchState();
+		void OnRep_MatchState();
 
-	void PollInIt();
 
-	bool bInitializeCharacterOverlay = false;
 
-	float HUDHealth;
+	//high ping functions and variables
+	void HighPingWarning();
 
-	bool bInitializeHealth = false;
+	void StopHighPingWarning();
 
-	float HUDMaxHealth;
+	void CheckPing(float DeltaTime);
 
-	int32 HUDGrenade;
+	float HighPingRunningTime = 0.f;
 
-	bool bInitializeGrenades = false;
+	UPROPERTY(EditAnywhere)
+	float HighPingDuration = 5.f;
 
-	int32 HUDWeaponAmmo;
+	float CheckPingFrequency = 20.f;
 
-	bool bInitializeWeaponAmmo = false;
+	UPROPERTY(EditAnywhere)
+	float HighPingThreshold = 50.f;
 
-	int32 HUDCarriedAmmo;
+	float PingAnimationRunningTime = 0.f;
+	
+	//class variables
 
-	bool bInitializeCarriedAmmo = false;
+	UPROPERTY()
+	class ABlasterHUD* BlasterHUD;
+
+	UPROPERTY()
+	class ABlasterCharacter* BlasterCharacter;
+
+	UPROPERTY()
+		class ABlasterGameMode* BlasterGameMode;
+
+	UPROPERTY()
+		class UCharacterOverlay* CharacterOverlay;
+
+	
+
+	
 
 protected:
 
