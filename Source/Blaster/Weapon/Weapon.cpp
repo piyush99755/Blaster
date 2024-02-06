@@ -58,15 +58,13 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//check to see if its on server
-	if (HasAuthority())
-	{
-		WeaponSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		WeaponSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	//showing widget locally
+	WeaponSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	WeaponSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
-		WeaponSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
-		WeaponSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
-	}
+	WeaponSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
+	WeaponSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
+	
 
     if (PickupWidget)
 	{
@@ -214,7 +212,7 @@ void AWeapon::OnDropped()
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_TAN);
 	WeaponMesh->MarkRenderStateDirty();
 	EnableCustomDepth(true);
 }
@@ -260,8 +258,11 @@ void AWeapon::Fire(const FVector& HitTarget)
 			
 		}
 	}
-
-	SpendRound();
+	if (HasAuthority())
+	{
+		SpendRound();
+	}
+	
 }
 
 void AWeapon::SetHUDAmmo()

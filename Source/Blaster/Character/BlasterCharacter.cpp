@@ -411,8 +411,9 @@ void ABlasterCharacter::UpdateAmmoHUD()
 
 void ABlasterCharacter::Elimination()
 {
-	DropOrDestroyWeapons();
 	MulticastElimination();
+	DropOrDestroyWeapons();
+	
 
 	GetWorldTimerManager().SetTimer(ElimTimerHandle,this,  &ABlasterCharacter::ElimTimerFinished, ElimDelay);
 
@@ -461,6 +462,8 @@ void ABlasterCharacter::DropOrDestroyWeapons()
 void ABlasterCharacter::MulticastElimination_Implementation()
 {
 	PlayDeathMontage();
+	bEliminated = true;
+    bDisableGameplay = true;
 
 
 	//disable character movement..
@@ -472,12 +475,7 @@ void ABlasterCharacter::MulticastElimination_Implementation()
 		BlasterPlayerController->SetWeaponAmmoHUD(0);
 	}
 
-	bEliminated = true;
 	
-
-	
-
-	bDisableGameplay = true;
 
 	//disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

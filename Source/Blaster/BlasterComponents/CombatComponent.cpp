@@ -407,6 +407,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 void UCombatComponent::SwapWeapons()
 {
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
 	AWeapon* TempWeapon = EquippedWeapon;
 
 	//set primary weapon to secondary
@@ -644,6 +645,7 @@ void UCombatComponent::Fire()
 		//as FireButtonPressed function called locally on server or client
 	//need to call server RPC first and it will call multicast RPC 
 		ServerFire(HitTarget);
+		LocalFire(HitTarget);
 
 		if (EquippedWeapon)
 		{
@@ -656,6 +658,8 @@ void UCombatComponent::Fire()
 	
 	
 }
+
+
 
 void UCombatComponent::FireTimerStart()
 {
@@ -741,14 +745,6 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& HitResult)
 		
 	};
 
-	
-
-	
-
-	
-
-	
-
 }
 
 
@@ -760,8 +756,16 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 }
 
 
-//multicast fire function replicates both on server and client..
+
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
+{
+	if (Character && Character->IsLocallyControlled() && !Character->HasAuthority()) return;
+
+	//for client side 
+	LocalFire(TraceHitTarget);
+}
+
+void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (EquippedWeapon == nullptr) return;
 	if (Character && CombatState == ECombatState::ECS_Unoccupied)
