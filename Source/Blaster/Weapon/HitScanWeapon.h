@@ -18,6 +18,8 @@ public:
 
 	virtual void Fire(const FVector& HitTarget)override;
 
+	
+
 	UPROPERTY(EditAnywhere)
 	float Damage = 20.f;
 
@@ -36,19 +38,11 @@ public:
 	UPROPERTY(EditAnywhere)
 		USoundCue* HitSound;
 
-	//trace end with scatter variables.. 
-	UPROPERTY(EditAnywhere)
-		float DistaceToSphere = 800.f;
-
-	UPROPERTY(EditAnywhere)
-	float SphereRadius = 75.f;
-
-	UPROPERTY(EditAnywhere)
-	bool bUseScatter = false;
+	
 
 protected:
 
-	FVector TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget);
+	
 
 	void WeaponTraceHit(const FVector& TraceStart, const FVector& HitTarget, FHitResult& OutHit);
 

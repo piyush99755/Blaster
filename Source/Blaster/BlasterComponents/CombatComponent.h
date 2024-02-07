@@ -90,6 +90,10 @@ protected:
 
 	void Fire();
 
+	void FireHitScanWeapon();
+
+	void FireProjectileWeapon();
+
 	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
 
 	//server RPC function to handle fire functionality on server

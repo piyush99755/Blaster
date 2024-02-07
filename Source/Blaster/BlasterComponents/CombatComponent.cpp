@@ -642,20 +642,45 @@ void UCombatComponent::Fire()
 	if (CanFire())
 	{
 		bCanFire = false;
-		//as FireButtonPressed function called locally on server or client
-	//need to call server RPC first and it will call multicast RPC 
-		ServerFire(HitTarget);
-		LocalFire(HitTarget);
-
 		if (EquippedWeapon)
 		{
 			CrosshairShootingFactor = 5.f;
+
+			switch (EquippedWeapon->FireType)
+			{
+			case EFireType::EFT_HitScanWeapon:
+				FireHitScanWeapon();
+				break;
+
+			case EFireType::EFT_ProjectileWeapon:
+				FireProjectileWeapon();
+				break;
+
+			}
 		}
 
 		FireTimerStart();
 	}
 	
 	
+	
+}
+
+void UCombatComponent::FireHitScanWeapon()
+{
+	if (EquippedWeapon)
+	{
+		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
+		LocalFire(HitTarget);
+		ServerFire(HitTarget);
+	}
+}
+
+void UCombatComponent::FireProjectileWeapon()
+{
+	LocalFire(HitTarget);
+	
+	ServerFire(HitTarget);
 	
 }
 

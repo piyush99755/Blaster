@@ -11,6 +11,8 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Casing.h"
 #include "Blaster/PlayerController/BlasterPlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AWeapon::AWeapon()
 {
@@ -345,6 +347,40 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 		PickupWidget->SetVisibility(bShowWidget);
 	}
 }
+
+FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget)
+{
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
+	if (MuzzleFlashSocket == nullptr) return FVector();
+
+	const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+	FVector TraceStart = SocketTransform.GetLocation();
+
+	//getting length of vector.. 
+	FVector DistanceToNormalize = (HitTarget - TraceStart).GetSafeNormal();
+	FVector SphereCenter = TraceStart + DistanceToNormalize * DistaceToSphere;
+
+	//random vector of sphere
+	FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
+
+	//end location of trace hit
+	FVector EndLoc = SphereCenter + RandVec; //end location of trace hit
+	FVector ToEndLoc = EndLoc - TraceStart;
+
+	/*
+	* DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, true);
+	true)
+	DrawDebugSphere(GetWorld(), EndLoc, 4.f, 12, FColor::Green, true);
+	DrawDebugLine(GetWorld(),
+		TraceStart,
+		FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size()),
+		FColor::Yellow,
+	;*/
+
+	//to divide by ToEndLoc magnitude to prevent getting overflow values of x, y and z vector
+	return FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size());
+}
+
 
 
 
