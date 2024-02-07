@@ -80,7 +80,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AWeapon, WeaponState);
-	DOREPLIFETIME(AWeapon, Ammo);
+	
 }
 
 
@@ -260,10 +260,9 @@ void AWeapon::Fire(const FVector& HitTarget)
 			
 		}
 	}
-	if (HasAuthority())
-	{
-		SpendRound();
-	}
+	
+	SpendRound();
+	
 	
 }
 
@@ -282,14 +281,7 @@ void AWeapon::SetHUDAmmo()
 }
 
 
-void AWeapon::SpendRound()
-{
-	//stop ammo from firing at value of 0
-	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
 
-	SetHUDAmmo();
-
-}
 
 bool AWeapon::IsEmpty()
 {
@@ -299,7 +291,45 @@ bool AWeapon::IsEmpty()
 void AWeapon::AddAmmo(int32 AmmoToAdd)
 {
 	//clamping value to make sure that value doesnot go below 0 and above mag capacity
-	Ammo = FMath::Clamp(Ammo - AmmoToAdd, 0, MagCapacity);
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
+	SetHUDAmmo();
+	ClientAddAmmo(Ammo);
+}
+
+void AWeapon::SpendRound()
+{
+	//stop ammo from firing at value of 0
+	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
+
+	SetHUDAmmo();
+
+	//Updating server authorative ammo value in client RPC 
+	if (HasAuthority())
+	{
+		ClientUpdateAmmo(Ammo);
+	}
+	else
+	{
+		++Sequence;
+	}
+
+}
+
+void AWeapon::ClientAddAmmo_Implementation(int32 AmmoToAdd)
+{
+	if (HasAuthority()) return;
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
+	SetHUDAmmo();
+
+}
+
+void AWeapon::ClientUpdateAmmo_Implementation(int32 ServerAmmo)
+{
+	if (HasAuthority()) return;
+	//sequence keep track of server requests for every spend round
+	Ammo = ServerAmmo; //setting value to server authorative ammo value
+	--Sequence;
+	Ammo -= Sequence;
 	SetHUDAmmo();
 }
 
@@ -313,10 +343,7 @@ void AWeapon::EnableCustomDepth(bool bEnable)
 
 
 
-void AWeapon::OnRep_Ammo()
-{
-	SetHUDAmmo();
-}
+
 
 void AWeapon::OnRep_Owner()
 {

@@ -130,16 +130,20 @@ private:
 
 	//ammo variables and functions
 
-	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo)
+	UPROPERTY(EditAnywhere)
 	int32 Ammo;
 
-	UFUNCTION()
-		void OnRep_Ammo();
+	
 
 	void SpendRound();
 
 	UPROPERTY(EditAnywhere)
 	int32 MagCapacity;
+	
+	//the number of unprocessed server requests for ammo
+	//incremented in spend round and decremented in clientupdateammo
+	UPROPERTY()
+	int32 Sequence = 0;
 
 	UPROPERTY()
 	class ABlasterCharacter* BlasterOwnerCharacter;
@@ -190,6 +194,13 @@ public:
 	bool IsEmpty();
 
 	void AddAmmo(int32 AmmoToAdd);
+
+	UFUNCTION(Client, Reliable)
+	void ClientAddAmmo(int32 AmmoToAdd);
+
+	UFUNCTION(Client, Reliable)
+	void ClientUpdateAmmo(int32 ServerAmmo);
+
 
 	void EnableCustomDepth(bool bEnable);
 

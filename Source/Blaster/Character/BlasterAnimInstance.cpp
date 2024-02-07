@@ -117,6 +117,11 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	//use FABRIK when not in reloading combat state...
 	bUseFABRIK = BlasterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
+	if (BlasterCharacter->IsLocallyControlled() && BlasterCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade)
+	{
+		//use FABRIK while Reloding, only when is locally controlled and not throwing grenades..
+		bUseFABRIK = !BlasterCharacter->IsLocallyReloading();
+	}
 	bUseOffsets = BlasterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !BlasterCharacter->GetDisableGameplay();
 	bUseRightHandTransform = BlasterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !BlasterCharacter->GetDisableGameplay();
 

@@ -278,9 +278,18 @@ void UCombatComponent::UpdateGrenades()
 }
 
 
+void UCombatComponent::OnRep_Aiming()
+{
+	if (Character && Character->IsLocallyControlled())
+	{
+		bAiming = bAimingButtonPressed;
+	}
+}
+
 bool UCombatComponent::CanFire()
 {
 	if(EquippedWeapon == nullptr) return false;
+	if (bLocallyReloading) return false;
 	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 	
 }
@@ -308,6 +317,8 @@ void UCombatComponent::SetAiming(bool bIsAiming)
 	{
 		Character->ShowSniperScoreWidget(bIsAiming);
 	}
+
+	if (Character->IsLocallyControlled()) bAimingButtonPressed = bIsAiming;
 }
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
@@ -521,10 +532,12 @@ void UCombatComponent::DropEquipWeapon()
 
 void UCombatComponent::Reload()
 {
-	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied )
+	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied  && !EquippedWeapon->IsEmpty() && !bLocallyReloading)
 	{
 		ServerReload();
-		
+		HandleReload();
+		bLocallyReloading = true;
+
 	}
 }
 
@@ -533,7 +546,11 @@ void UCombatComponent::ServerReload_Implementation()
 	if (Character == nullptr) return;
 
 	CombatState = ECombatState::ECS_Reloading;
-	HandleReload();
+	if (Character && !Character->IsLocallyControlled())
+	{
+		HandleReload();
+	}
+	
 	
 
 }
@@ -543,7 +560,10 @@ void UCombatComponent::OnRep_CombatState()
 	switch (CombatState)
 	{
 	case ECombatState::ECS_Reloading:
-		HandleReload();
+		if (Character && !Character->IsLocallyControlled())
+		{
+			HandleReload();
+		}
 		break;
 
 	case ECombatState::ECS_Unoccupied:
@@ -604,7 +624,7 @@ void UCombatComponent::UpdateAmmoValues()
 	{
 		Controller->SetCarriedAmmoHUD(CarriedAmmo);
 	}
-	EquippedWeapon->AddAmmo(-ReloadAmount);
+	EquippedWeapon->AddAmmo(ReloadAmount);
 }
 
 
@@ -704,7 +724,7 @@ void UCombatComponent::FireTimeFinished()
 	{
 		Fire();
 	}
-	UpdateCarriedAmmo();
+	ReloadEmptyWeapon();
 }
 
 void UCombatComponent::OnRep_CarriedAmmo()
@@ -826,7 +846,7 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 void UCombatComponent::FinishReloading()
 {
 	if (Character == nullptr) return;
-
+	bLocallyReloading = false;
 	if (Character->HasAuthority())
 	{
 		CombatState = ECombatState::ECS_Unoccupied;

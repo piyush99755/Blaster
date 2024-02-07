@@ -718,6 +718,14 @@ AWeapon* ABlasterCharacter::GetEquippedWeapon()
 	return CombatComponent->EquippedWeapon;
 }
 
+bool ABlasterCharacter::IsLocallyReloading()
+{
+	if(CombatComponent == nullptr) return false;
+
+	return CombatComponent->bLocallyReloading;
+	
+}
+
 ECombatState ABlasterCharacter::GetCombatState() const
 {
 	if (CombatComponent == nullptr) return ECombatState::ECS_MAX;
