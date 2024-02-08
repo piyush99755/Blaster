@@ -21,6 +21,7 @@
 #include "Blaster/Weapon/WeaponTypes.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
+#include "Blaster/BlasterComponents/LagCompensationComponent.h"
 
 
 
@@ -50,6 +51,9 @@ ABlasterCharacter::ABlasterCharacter()
 
 	BuffComponent = CreateDefaultSubobject<UBuffComponent>(TEXT("Buff Component"));
 	BuffComponent->SetIsReplicated(true);
+
+	LagCompensation = CreateDefaultSubobject<ULagCompensationComponent>(TEXT("LagCompensation"));
+
 
 	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Attached Grenade"));
 	AttachedGrenade->SetupAttachment(GetMesh(), FName("GrenadeSocket"));
@@ -172,6 +176,16 @@ void ABlasterCharacter::PostInitializeComponents()
 		BuffComponent->SetInitialJumpVelocity(GetCharacterMovement()->JumpZVelocity);
 	}
 	
+	if (LagCompensation)
+	{
+		LagCompensation->Character = this;
+
+		if (Controller)
+		{
+			LagCompensation->Controller = Cast<ABlasterPlayerController>(Controller);
+		}
+		
+	}
 }
 
 

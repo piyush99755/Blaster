@@ -34,6 +34,9 @@ public:
 		class UBuffComponent* BuffComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class ULagCompensationComponent* LagCompensation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UStaticMeshComponent* AttachedGrenade;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
