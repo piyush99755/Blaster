@@ -121,6 +121,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* Foot_R;
 
+	UPROPERTY()
+		TMap<FName, class UBoxComponent*> HitBoxCollisions;
+
 
 private:
 	//special type of Uproperty used to make variable replicable..
