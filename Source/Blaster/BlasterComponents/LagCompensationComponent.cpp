@@ -31,6 +31,27 @@ void ULagCompensationComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (FrameHistory.Num() <= 1)
+	{
+		FFramePackage ThisFrame;
+		SaveFramePackage(ThisFrame);
+		FrameHistory.AddHead(ThisFrame);//adding head element to frame history
+	}
+	else
+	{
+		 float HistoryLength = FrameHistory.GetHead()->GetValue().Time - FrameHistory.GetTail()->GetValue().Time;
+		while (HistoryLength > MaxRecordTime)
+		{
+			//when history length is greater than max record time, keep removing node
+			//then save that frame history once it get back under max recordtime
+			FrameHistory.RemoveNode(FrameHistory.GetTail());
+		}
+		FFramePackage ThisFrame;
+		SaveFramePackage(ThisFrame);
+		FrameHistory.AddHead(ThisFrame);
+		ShowFramePackage(ThisFrame, FColor::Red);
+	}
+
 	
 }
 
@@ -59,7 +80,7 @@ void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, c
 {
 	for (auto& BoxInfo : Package.HitBoxInfo)
 	{
-		DrawDebugBox(GetWorld(), BoxInfo.Value.BoxLocation, BoxInfo.Value.BoxExtent, FQuat(BoxInfo.Value.BoxRotation), Color, true);
+		DrawDebugBox(GetWorld(), BoxInfo.Value.BoxLocation, BoxInfo.Value.BoxExtent, FQuat(BoxInfo.Value.BoxRotation), Color, false, 4.f);
 
 	}
 }
