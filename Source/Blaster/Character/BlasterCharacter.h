@@ -317,6 +317,7 @@ public:
 	FORCEINLINE UCombatComponent* GetCombatComponent() const { return CombatComponent; }
 	FORCEINLINE UStaticMeshComponent* GetGrenadeMesh() const { return AttachedGrenade; }
 	FORCEINLINE UBuffComponent* GetBuffComponent() const { return BuffComponent; }
+	FORCEINLINE ULagCompensationComponent* GetLagCompensation() const  { return LagCompensation; }
 
 	bool IsLocallyReloading();
 	

@@ -85,3 +85,92 @@ void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, c
 	}
 }
 
+void ULagCompensationComponent::ServerSideRewind(ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime)
+{
+	bool bReturn = HitCharacter ||
+		           HitCharacter->GetLagCompensation() ||
+		           HitCharacter->GetLagCompensation()->FrameHistory.GetHead() ||
+	               HitCharacter->GetLagCompensation()->FrameHistory.GetHead();
+
+	FFramePackage FrameToCheck;
+	bool bShouldInterpolate = true;
+
+	//hit character frame history which will be filled in by function 
+	const TDoubleLinkedList<FFramePackage>& History = HitCharacter->GetLagCompensation()->FrameHistory;
+	const float OldestHistoryTime = History.GetTail()->GetValue().Time;
+	const float NewestHistoryTime = History.GetHead()->GetValue().Time;
+
+	if (OldestHistoryTime > HitTime)
+	{
+		return;
+	}
+
+	if (OldestHistoryTime == HitTime)
+	{
+		FrameToCheck = History.GetTail()->GetValue();
+		bShouldInterpolate = false;
+	}
+
+	if (NewestHistoryTime <= HitTime)
+	{
+		FrameToCheck = History.GetHead()->GetValue();
+		bShouldInterpolate = false;
+	}
+
+	//setting both node on to the head node before going through all the frames in frame package..
+	TDoubleLinkedList<FFramePackage>::TDoubleLinkedListNode* Younger = History.GetHead();
+	TDoubleLinkedList<FFramePackage>::TDoubleLinkedListNode* Older = Younger;
+
+	while (Older->GetValue().Time > HitTime) //is older is still younger than hit time?
+	{
+		//march back until OlderTime < HitTime < YoungerTime..
+		if (Older->GetNextNode() == nullptr) break;
+		Older->GetNextNode()->GetValue();
+
+		if (Older->GetNextNode()->GetValue().Time > HitTime)
+		{
+			Younger = Older;
+		}
+	}
+
+	if (Older->GetValue().Time == HitTime)
+	{
+		FrameToCheck = Older->GetValue();
+		bShouldInterpolate = false;
+	}
+
+	if (bShouldInterpolate)
+	{
+
+	}
+
+	if (bReturn) return;
+}
+
+FFramePackage ULagCompensationComponent::InterpBetweenFrames(const FFramePackage& OlderFrame, const FFramePackage& YoungerFrame, float HitTime)
+{
+	const float Distance = YoungerFrame.Time - OlderFrame.Time;
+	const float InterpFraction = (HitTime - OlderFrame.Time) / Distance;
+
+	FFramePackage InterpFramePackage; 
+	InterpFramePackage.Time = HitTime;
+
+	for (auto& YoungerPair : YoungerFrame.HitBoxInfo)
+	{
+		const FName& BoxInfoName = YoungerPair.Key;
+
+		const FBoxInformation& OlderBox = OlderFrame.HitBoxInfo[BoxInfoName];
+		const FBoxInformation& YoungerBox = YoungerFrame.HitBoxInfo[BoxInfoName];
+
+		FBoxInformation InterpBoxInfo; 
+
+		InterpBoxInfo.BoxLocation = FMath::VInterpTo(OlderBox.BoxLocation, YoungerBox.BoxLocation, 1.f, InterpFraction);
+		InterpBoxInfo.BoxRotation = FMath::RInterpTo(OlderBox.BoxRotation, OlderBox.BoxRotation, 1.f, InterpFraction);
+		InterpBoxInfo.BoxExtent = YoungerBox.BoxExtent;
+
+		InterpFramePackage.HitBoxInfo.Add(BoxInfoName, InterpBoxInfo);
+	}
+
+	return InterpFramePackage;
+}
+

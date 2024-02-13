@@ -68,4 +68,8 @@ public:
 	void SaveFramePackage(FFramePackage& Package);
 
 	void ShowFramePackage(const FFramePackage& Package, const FColor& Color);
+
+	void ServerSideRewind(class ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime);
+
+	FFramePackage InterpBetweenFrames(const FFramePackage& OlderFrame, const FFramePackage& YoungerFrame, float HitTime);
 };
